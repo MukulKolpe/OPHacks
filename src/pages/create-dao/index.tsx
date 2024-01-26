@@ -6,8 +6,7 @@ import {
   useColorModeValue,
   Box,
   Button,
-  extendTheme,
-  CSSReset,
+  Text, // Import the Text component
 } from "@chakra-ui/react";
 
 const CreateDao = () => {
@@ -20,6 +19,7 @@ const CreateDao = () => {
   const step2 = useColorModeValue("500", "400");
   const step3 = useColorModeValue("300", "500");
   const sizes = ["lg", "md", "sm", "xs"];
+
   return (
     <>
       {showBtn ? (
@@ -56,7 +56,9 @@ const CreateDao = () => {
               }}
               marginRight="2%"
             >
-              Import Existing Token
+              <Text fontSize="xl" fontWeight="bold">
+                Import Existing Token
+              </Text>
             </Button>
             <Button
               width="45%"
@@ -83,7 +85,9 @@ const CreateDao = () => {
                 transition: "background 0s",
               }}
             >
-              Create new Tokens
+              <Text fontSize="xl" fontWeight="bold">
+                Create new Tokens
+              </Text>
             </Button>
           </Box>
         </Box>
