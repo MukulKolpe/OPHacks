@@ -32,6 +32,9 @@ import {
 } from "@chakra-ui/react";
 
 import { useToast } from "@chakra-ui/react";
+import { ParticleProvider } from "@particle-network/provider";
+import { ethers } from "ethers";
+import usersideabi from "../../utils/usersideabi.json";
 
 const RegisterForm = () => {
   const toast = useToast();
@@ -82,6 +85,70 @@ const RegisterForm = () => {
         }
       })
       .catch((err) => console.error(err));
+  };
+
+  const handleSubmit = async (e) => {
+    if (window.ethereum._state.accounts.length !== 0) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(
+        "0x42098959B5D97c7C2AcD28E0B8d221348Fb8A60F",
+        usersideabi,
+        signer
+      );
+      const accounts = await provider.listAccounts();
+
+      const tx = await contract.createUser(
+        name,
+        email,
+        bio,
+        ipfsUrl,
+        accounts[0]
+      );
+      await tx.wait();
+
+      toast({
+        title: "User Registered.",
+        description: "Congratulations 🎉 ",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } else {
+      const particleProvider = new ParticleProvider(particle.auth);
+      const accounts = await particleProvider.request({
+        method: "eth_accounts",
+      });
+      const ethersProvider = new ethers.providers.Web3Provider(
+        particleProvider,
+        "any"
+      );
+      const signer = ethersProvider.getSigner();
+
+      const contract = new ethers.Contract(
+        "0x42098959B5D97c7C2AcD28E0B8d221348Fb8A60F",
+        usersideabi,
+        signer
+      );
+
+      const tx = await contract.createUser(
+        name,
+        email,
+        bio,
+        ipfsUrl,
+        accounts[0]
+      );
+
+      await tx.wait();
+
+      toast({
+        title: "User Registered.",
+        description: "Congratulations 🎉 ",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
   return (
     <>
@@ -249,6 +316,7 @@ const RegisterForm = () => {
           w="10rem"
           colorScheme="purple"
           variant="solid"
+          onClick={handleSubmit}
         >
           Register
         </Button>

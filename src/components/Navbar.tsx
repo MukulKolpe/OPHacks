@@ -65,6 +65,18 @@ export default function Navbar() {
                   display={{ base: "none", md: "flex" }}
                   marginRight={4}
                 >
+                  <Link href="/register">
+                    <Button w="full" variant="ghost">
+                      Register
+                    </Button>
+                  </Link>
+                </HStack>
+                <HStack
+                  as={"nav"}
+                  spacing={4}
+                  display={{ base: "none", md: "flex" }}
+                  marginRight={4}
+                >
                   <Link href="/create-dao">
                     <Button w="full" variant="ghost">
                       Create DAO
@@ -108,6 +120,13 @@ export default function Navbar() {
 
         {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
+            <Stack as={"nav"} spacing={4}>
+              <Link href="/register">
+                <Button w="full" variant="ghost">
+                  Register
+                </Button>
+              </Link>
+            </Stack>
             <Stack as={"nav"} spacing={4}>
               <Link href="/create-dao">
                 <Button w="full" variant="ghost">
