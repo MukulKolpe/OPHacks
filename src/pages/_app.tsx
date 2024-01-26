@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import WagmiProvider from "../utils/wagmiprovider";
 import Head from "next/head";
 import Navbar from "@/components/Navbar";
 const colors = {
@@ -26,17 +27,19 @@ const theme = extendTheme({ colors, config });
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ChakraProvider theme={theme}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          minHeight: "100vh",
-        }}
-      >
-        <Navbar />
-        <Component {...pageProps} />
-      </div>
-    </ChakraProvider>
+    <WagmiProvider>
+      <ChakraProvider theme={theme}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            minHeight: "100vh",
+          }}
+        >
+          <Navbar />
+          <Component {...pageProps} />
+        </div>
+      </ChakraProvider>
+    </WagmiProvider>
   );
 }

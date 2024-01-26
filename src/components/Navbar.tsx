@@ -22,7 +22,7 @@ import {
   AddIcon,
   WarningTwoIcon,
 } from "@chakra-ui/icons";
-// import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 // import { ethers } from "ethers";
 import { Link } from "@chakra-ui/next-js";
 
@@ -98,7 +98,9 @@ export default function Navbar() {
                 </HStack>
               </>
 
-              <HStack>{/* <ConnectButton /> */}</HStack>
+              <HStack>
+                <ConnectButton />
+              </HStack>
             </div>
           </Flex>
         </Flex>
