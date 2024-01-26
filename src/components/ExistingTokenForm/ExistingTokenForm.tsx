@@ -1,6 +1,8 @@
 // @ts-nocheck comment
 import { useState, useRef, useContext } from "react";
+import { ParticleProvider } from "@particle-network/provider";
 import { ethers } from "ethers";
+import userSideabi from "../../utils/usersideabi.json";
 import {
   Progress,
   Box,
@@ -311,9 +313,29 @@ export default function ExistingTokenForm() {
   const [tokenAddress, settokenAddress] = useState("");
   const [daovisibility, setdaoVisibility] = useState(false);
 
-  console.log(daovisibility);
-  console.log(threshholdToken);
-  console.log(proposalToken);
+  const craeteDAO = () => {
+    const provider =
+      window.ethereum._state.accounts.length !== 0
+        ? new ethers.providers.Web3Provider(window.ethereum)
+        : new ParticleProvider(particle.auth);
+
+    const ethersProvider =
+      window.ethereum._state.accounts.length !== 0
+        ? null
+        : new ethers.providers.Web3Provider(provider, "any");
+    const signer =
+      window.ethereum._state.accounts.length !== 0
+        ? provider.getSigner()
+        : ethersProvider.getSigner();
+
+    const contract = new ethers.Contract(
+      process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+      userSideabi,
+      signer
+    );
+
+    contract.createDao();
+  };
 
   return (
     <Box
@@ -382,7 +404,7 @@ export default function ExistingTokenForm() {
               colorScheme="red"
               variant="solid"
               onClick={() => {
-                handleSubmit();
+                craeteDAO();
               }}
             >
               Submit
