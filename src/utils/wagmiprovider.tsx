@@ -109,6 +109,7 @@ function WagmiProvider(props: any) {
           <RainbowKitProvider
             chains={chains}
             theme={darkTheme({ accentColor: "#7b3fe4" })}
+            coolMode
           >
             {props.children}
           </RainbowKitProvider>
