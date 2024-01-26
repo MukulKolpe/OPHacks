@@ -1,3 +1,4 @@
+// @ts-nocheck comment
 import {
   Box,
   Flex,

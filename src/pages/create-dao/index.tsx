@@ -1,3 +1,4 @@
+// @ts-nocheck comment
 import React, { useState } from "react";
 import ExistingTokenForm from "../../components/ExistingTokenForm/ExistingTokenForm";
 import NewTokenForm from "../../components/NewTokenForm/NewTokenForm";

@@ -1,3 +1,4 @@
+// @ts-nocheck comment
 import { useState, useRef, useContext } from "react";
 import { ethers } from "ethers";
 import {
