@@ -313,28 +313,58 @@ export default function ExistingTokenForm() {
   const [tokenAddress, settokenAddress] = useState("");
   const [daovisibility, setdaoVisibility] = useState(false);
 
-  const craeteDAO = () => {
-    const provider =
-      window.ethereum._state.accounts.length !== 0
-        ? new ethers.providers.Web3Provider(window.ethereum)
-        : new ParticleProvider(particle.auth);
+  const craeteDAO = async () => {
+    if (window.ethereum._state.accounts.length !== 0) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-    const ethersProvider =
-      window.ethereum._state.accounts.length !== 0
-        ? null
-        : new ethers.providers.Web3Provider(provider, "any");
-    const signer =
-      window.ethereum._state.accounts.length !== 0
-        ? provider.getSigner()
-        : ethersProvider.getSigner();
+      const signer = provider.getSigner();
 
-    const contract = new ethers.Contract(
-      process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
-      userSideabi,
-      signer
-    );
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        userSideabi,
+        signer
+      );
 
-    contract.createDao();
+      const accounts = await provider.listAccounts();
+
+      const tx = await contract.createDao(
+        name,
+        desc,
+        threshholdToken,
+        proposalToken,
+        tokenAddress,
+        daovisibility,
+        accounts[0]
+      );
+    } else {
+      const particleProvider = new ParticleProvider(particle.auth);
+      const accounts = await particleProvider.request({
+        method: "eth_accounts",
+      });
+      const ethersProvider = new ethers.providers.Web3Provider(
+        particleProvider,
+        "any"
+      );
+      const signer = ethersProvider.getSigner();
+
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        userSideabi,
+        signer
+      );
+
+      const tx = await contract.createDao(
+        name,
+        desc,
+        threshholdToken,
+        proposalToken,
+        tokenAddress,
+        daovisibility,
+        accounts[0]
+      );
+
+      console.log(tx);
+    }
   };
 
   return (
