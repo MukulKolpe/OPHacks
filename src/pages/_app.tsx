@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import Head from "next/head";
+import Navbar from "@/components/Navbar";
 const colors = {
   brand: {
     50: "#ecefff",
@@ -33,6 +34,7 @@ export default function App({ Component, pageProps }: AppProps) {
           minHeight: "100vh",
         }}
       >
+        <Navbar />
         <Component {...pageProps} />
       </div>
     </ChakraProvider>
