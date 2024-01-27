@@ -92,7 +92,7 @@ const RegisterForm = () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       const contract = new ethers.Contract(
-        "0x42098959B5D97c7C2AcD28E0B8d221348Fb8A60F",
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
         usersideabi,
         signer
       );
@@ -150,6 +150,23 @@ const RegisterForm = () => {
       });
     }
   };
+
+  const getUser = async () => {
+    if (window.ethereum._state.accounts.length !== 0) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const userSideInstance = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        usersideabi,
+        signer
+      );
+      const tempUser = await userSideInstance.userIdtoUser(2);
+      console.log(tempUser);
+    } else {
+      console.log("No Metamask Found");
+    }
+  };
+
   return (
     <>
       <Box
@@ -316,7 +333,7 @@ const RegisterForm = () => {
           w="10rem"
           colorScheme="purple"
           variant="solid"
-          onClick={handleSubmit}
+          onClick={getUser}
         >
           Register
         </Button>

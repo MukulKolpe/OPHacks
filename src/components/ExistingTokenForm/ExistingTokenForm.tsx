@@ -367,6 +367,23 @@ export default function ExistingTokenForm() {
     }
   };
 
+  const getDao = async () => {
+    if (window.ethereum._state.accounts.length !== 0) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      const signer = provider.getSigner();
+
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        userSideabi,
+        signer
+      );
+
+      const daoInfo = await contract.daoIdtoDao(1);
+      console.log(daoInfo);
+    }
+  };
+
   return (
     <Box
       borderWidth="1px"
