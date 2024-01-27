@@ -83,6 +83,18 @@ export default function Navbar() {
                     </Button>
                   </Link>
                 </HStack>
+                <HStack
+                  as={"nav"}
+                  spacing={4}
+                  display={{ base: "none", md: "flex" }}
+                  marginRight={4}
+                >
+                  <Link href="/explore">
+                    <Button w="full" variant="ghost">
+                      Explore
+                    </Button>
+                  </Link>
+                </HStack>
 
                 <HStack
                   as={"nav"}
@@ -131,6 +143,13 @@ export default function Navbar() {
               <Link href="/create-dao">
                 <Button w="full" variant="ghost">
                   Create DAO
+                </Button>
+              </Link>
+            </Stack>
+            <Stack as={"nav"} spacing={4}>
+              <Link href="/explore">
+                <Button w="full" variant="ghost">
+                  Explore
                 </Button>
               </Link>
             </Stack>
