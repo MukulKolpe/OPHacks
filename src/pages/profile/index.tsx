@@ -5,10 +5,41 @@ import { useAccount } from "wagmi";
 import usersideabi from "../../utils/usersideabi.json";
 import governancetokenabi from "../../utils/governancetokenabi.json";
 import { Center } from "@chakra-ui/react";
+import {
+  Box,
+  Avatar,
+  Heading,
+  Icon,
+  Text,
+  Button,
+  Stack,
+  Badge,
+  Image,
+  SimpleGrid,
+  Link,
+} from "@chakra-ui/react";
+import { FaExternalLinkAlt } from "react-icons/fa";
+
+const projects = [
+  {
+    id: 1,
+    title: "Portfolio Website",
+    description: "My personal portfolio showcasing my skills and projects.",
+    link: "https://www.example.com/portfolio",
+  },
+  {
+    id: 2,
+    title: "React Chat App",
+    description: "Real-time chat application built using React and Firebase.",
+    link: "https://www.example.com/react-chat-app",
+  },
+  // Add more projects as needed
+];
 
 const Profile = () => {
   const account = useAccount();
   const [userDaos, setUserDaos] = useState([]);
+  const [userInfo, setuserInfo] = useState([]);
 
   const onLoad = async () => {
     if (window.ethereum._state.accounts.length !== 0) {
@@ -25,7 +56,7 @@ const Profile = () => {
       );
       console.log(tempUserId);
       const tempUserInfo = await userSideInstance.userIdtoUser(tempUserId);
-      console.log(tempUserInfo);
+      setuserInfo(tempUserInfo);
       const tempUserDaos = await userSideInstance.getAllUserDaos(tempUserId);
       console.log(tempUserDaos);
       let tempDaoInfo,
@@ -69,7 +100,55 @@ const Profile = () => {
     return () => onLoad();
   }, []);
 
-  return <div>Profile</div>;
+  console.log(userDaos);
+
+  return (
+    <Box maxW="800px" mx="auto" p={4}>
+      <Stack align="center">
+        <Avatar size="xl" name={userInfo[1]} src={userInfo[4]} />
+
+        <Heading my={2}>{userInfo[1]}</Heading>
+        <Text color="gray.500">{userInfo[2]}</Text>
+        <Badge colorScheme="green">Online</Badge>
+      </Stack>
+
+      <Box mt={4}>
+        <Heading size="md">About Me</Heading>
+        <Text>{userInfo[3]}</Text>
+      </Box>
+
+      <Box mt={4}>
+        <Heading size="md">DAO's you are part of</Heading>
+        <SimpleGrid columns={1} spacing={4} mt={2}>
+          {userDaos.map((dao) => (
+            <Box
+              key={dao.daoInfo[0].toString()}
+              p={4}
+              borderWidth="1px"
+              borderRadius="lg"
+              position="relative"
+            >
+              <Heading size="sm">{dao.daoInfo.daoName}</Heading>
+              <Text mt={2}>{dao.daoInfo.daoDescription}</Text>
+              <Link
+                color="teal.500"
+                href={`https://op-hacks.vercel.app/dao/${dao.daoInfo[0].toString()}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                position="absolute"
+                top="4"
+                right="4"
+                fontSize="xl"
+                _hover={{ textDecoration: "underline" }}
+              >
+                <Icon as={FaExternalLinkAlt} ml={2} />
+              </Link>
+            </Box>
+          ))}
+        </SimpleGrid>
+      </Box>
+    </Box>
+  );
 };
 
 export default Profile;
