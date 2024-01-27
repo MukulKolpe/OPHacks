@@ -85,8 +85,12 @@ const index = () => {
   const [proposalType, setProposalType] = useState();
   const [proposalForVote, setProposalForVote] = useState(0);
   const [userResponse, setUserResponse] = useState(-1);
+  const [yesVotes, setYesVotes] = useState([]);
+  const [noVotes, setNoVotes] = useState([]);
+  const [abstainVotes, setAbstainVotes] = useState([]);
 
   const [endTime, setEndTime] = useState();
+  const [finalVerdict, setFinalVerdict] = useState("");
 
   const toast = useToast();
 
@@ -392,6 +396,42 @@ const index = () => {
     return 0;
   };
 
+  const getVotingResults = async (_proposalId) => {
+    if (window?.ethereum?._state?.accounts?.length !== 0) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const userSideInstance = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        UserSideAbi,
+        signer
+      );
+      //const accounts = await provider.listAccounts();
+      const yesArray = await userSideInstance.getAllYesVotes(_proposalId);
+      const noArray = await userSideInstance.getAllNoVotes(_proposalId);
+      const abstainArray = await userSideInstance.getAllAbstainVotes(
+        _proposalId
+      );
+      const totalArray = await userSideInstance.getAllVoters(_proposalId);
+      const yesPercentage =
+        (yesArray.length /
+          (yesArray.length + noArray.length + abstainArray.length)) *
+        100;
+      console.log(yesPercentage);
+      setYesVotes(yesArray);
+      setNoVotes(noArray);
+      setAbstainVotes(abstainArray);
+      const propInfo = await userSideInstance.proposalIdtoProposal(
+        proposalForVote
+      );
+      const winnningThresold = Number(propInfo.passingThreshold);
+      if (yesPercentage >= winnningThresold) {
+        setFinalVerdict("Proposal has Passed!");
+      } else {
+        setFinalVerdict("Proposal has been reverted");
+      }
+    }
+  };
+
   if (loading) {
     return <Center>Loading...</Center>;
   }
@@ -649,7 +689,16 @@ const index = () => {
                           </h3>
                         </Flex>
 
-                        <Button mt={4} colorScheme="teal">
+                        <Button
+                          onClick={() => {
+                            getVotingResults(
+                              Number(proposal.proposalInfo.proposalId)
+                            );
+                            handleSizeClick4();
+                          }}
+                          mt={4}
+                          colorScheme="teal"
+                        >
                           View Results
                         </Button>
                       </Box>
@@ -925,22 +974,26 @@ const index = () => {
         <ModalContent>
           <ModalHeader>Voting Results: </ModalHeader>
           <ModalBody>
-            {/* <TableContainer>
+            <TableContainer>
               <Table variant="simple">
                 <Tr>
                   <Td>Yes</Td>
-                  <Td isNumeric>{votingYes}</Td>
+                  <Td isNumeric>{yesVotes.length}</Td>
                 </Tr>
                 <Tr>
                   <Td>No</Td>
-                  <Td isNumeric>{votingNo}</Td>
+                  <Td isNumeric>{noVotes.length}</Td>
+                </Tr>
+                <Tr>
+                  <Td>Abstain</Td>
+                  <Td isNumeric>{abstainVotes.length}</Td>
                 </Tr>
                 <Tr>
                   <Td>Final Verdict</Td>
                   <Td isNumeric>{finalVerdict}</Td>
                 </Tr>
               </Table>
-            </TableContainer> */}
+            </TableContainer>
           </ModalBody>
           <ModalCloseButton />
         </ModalContent>
