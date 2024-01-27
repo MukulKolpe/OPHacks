@@ -4,9 +4,49 @@ import { ethers } from "ethers";
 import { useAccount } from "wagmi";
 import usersideabi from "../../utils/usersideabi.json";
 import governancetokenabi from "../../utils/governancetokenabi.json";
+import {
+  Progress,
+  Box,
+  ButtonGroup,
+  Button,
+  Heading,
+  Flex,
+  FormControl,
+  GridItem,
+  FormLabel,
+  Input,
+  Select,
+  SimpleGrid,
+  InputLeftAddon,
+  InputGroup,
+  Textarea,
+  FormHelperText,
+  InputRightElement,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  Icon,
+  chakra,
+  VisuallyHidden,
+  Text,
+  Stack,
+  ring,
+  Badge,
+  Code,
+  Center,
+  Grid,
+  Container,
+  AbsoluteCenter,
+} from "@chakra-ui/react";
+import DaosCard from "../../components/DaosCard/DaosCard";
+import { Spinner } from "@chakra-ui/react";
 
-const index = () => {
+const Explore = () => {
   const [daos, setDaos] = useState([]);
+  const [totaluserDAO, setTotaluserDAO] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const onLoad = async () => {
     if (window.ethereum._state.accounts.length !== 0) {
@@ -52,6 +92,14 @@ const index = () => {
           },
         ]);
       }
+
+      console.log(tempDaoInfo);
+      const totalUsersDAO = await userSideInstance.getAllDaoMembers(
+        tempDaoInfo.daoId
+      );
+      setTotaluserDAO(totalUsersDAO.length);
+      setIsLoading(false);
+      console.log("This is: " + totalUsersDAO.length);
     } else {
     }
   };
@@ -60,7 +108,45 @@ const index = () => {
     return () => onLoad();
   }, []);
 
-  return <div>index</div>;
+  return (
+    <Box>
+      {isLoading ? (
+        <AbsoluteCenter>
+          <Spinner
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="orange.500"
+            size="xl"
+          />
+        </AbsoluteCenter>
+      ) : (
+        <Container
+          maxW={"7xl"}
+          p="12"
+          templateRows="repeat(2, 1fr)"
+          templateColumns="repeat(4, 1fr)"
+          gap={4}
+        >
+          {daos &&
+            daos
+              .filter((dao) => dao.daoInfo.isPrivate === false)
+              .map((dao) => (
+                <GridItem rowSpan={1}>
+                  <DaosCard
+                    daoName={dao.daoInfo.daoName}
+                    joiningThreshold={dao.daoInfo.joiningThreshold}
+                    creatorName={dao.creatorInfo.userName}
+                    tokenName={dao.tokenName}
+                    tokenSymbol={dao.tokenSymbol}
+                    totalDaoMember={totaluserDAO}
+                  />
+                </GridItem>
+              ))}
+        </Container>
+      )}
+    </Box>
+  );
 };
 
-export default index;
+export default Explore;
