@@ -1,5 +1,6 @@
 // @ts-nocheck comment
 import React, { useEffect, useState } from "react";
+import { ParticleProvider } from "@particle-network/provider";
 import { useRouter } from "next/router";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
@@ -54,6 +55,8 @@ import {
   RadioGroup,
   Select,
 } from "@chakra-ui/react";
+import UserSideAbi from "../../utils/usersideabi.json";
+import GovernanceTokenAbi from "../../utils/governancetokenabi.json";
 
 const index = () => {
   const router = useRouter();
@@ -65,22 +68,27 @@ const index = () => {
   const [loading, setLoading] = useState(true);
   const [daoProposals, setDaoProposals] = useState([]);
   const [daoMembers, setDaoMembers] = useState([]);
+  const [tokenAddress, setTokenAddress] = useState("");
   const [totalMembers, setTotalMembers] = useState(0);
   const [voteOnce, setvoteOnce] = useState(true);
   const [adminInfo, setAdminInfo] = useState();
   const [votingthreshold, setVotingThreshold] = useState();
+  const [proposalArray, setProposalArray] = useState([]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState();
   const [passingThreshold, setPassingThreshold] = useState();
+  const { address } = useAccount();
   const [proposalType, setProposalType] = useState();
 
   const [endTime, setEndTime] = useState();
+
+  const toast = useToast();
 
   const convertToEpoch = (dateString: any) => {
     const epochValue = new Date(dateString + "T00:00:00Z").getTime() / 1000;
     return epochValue;
   };
-
-  console.log(startDate);
 
   // add proposal
   const {
@@ -163,36 +171,6 @@ const index = () => {
         const tempAdminInfo = await userSideInstance.userIdtoUser(tempAdminId);
         console.log(tempAdminInfo);
         setAdminInfo(tempAdminInfo);
-      } else {
-        const particleProvider = new ParticleProvider(particle.auth);
-        const accounts = await particleProvider.request({
-          method: "eth_accounts",
-        });
-        const ethersProvider = new ethers.providers.Web3Provider(
-          particleProvider,
-          "any"
-        );
-        const signer = ethersProvider.getSigner();
-
-        const userSideInstance = new ethers.Contract(
-          process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
-          usersideabi,
-          signer
-        );
-        console.log(userSideInstance);
-        const tempDaoInfo = await userSideInstance.daoIdtoDao(daoId);
-        setDaoInfo(tempDaoInfo);
-        const tempDaoMembers = await userSideInstance.getAllDaoMembers(daoId);
-
-        const tempDaoProposals = await userSideInstance.getAllDaoProposals(
-          daoId
-        );
-
-        const membershipSignal = await userSideInstance.checkMembership(
-          daoId,
-          account.address
-        );
-        setIsMember(membershipSignal);
       }
     }
   };
@@ -213,22 +191,26 @@ const index = () => {
       );
 
       const totalProposals = Number(
-        await userSideContract.getTotalProposals(BigInt(daoId))
+        await userSideContract.getAllDaoProposals(BigInt(daoInfo.daoId))
       );
       let tempProposalId,
         tempProposalInfo,
         governanceTokenContract,
         tokenSymbol,
         tokenName;
-      for (let i = 0; i < totalProposals; i++) {
-        tempProposalId = Number(
-          await userSideContract.getDaoProposalId(daoId, i)
+      let tempProposalArray = await userSideContract.getAllDaoProposals(
+        daoInfo.daoId
+      );
+
+      console.log(tempProposalArray);
+      for (let i = 0; i < tempProposalArray.length; i++) {
+        tempProposalInfo = await userSideContract.proposalIdtoProposal(
+          tempProposalArray[i]
         );
-        tempProposalInfo = await userSideContract.proposalIdtoproposal(
-          tempProposalId
-        );
+        console.log(tempProposalInfo);
+
         governanceTokenContract = new ethers.Contract(
-          tempProposalInfo.governanceTokenAddress,
+          tempProposalInfo.votingTokenAddress,
           GovernanceTokenAbi,
           signer
         );
@@ -246,8 +228,76 @@ const index = () => {
           },
         ]);
       }
+      // for (let i = 0; i < totalProposals; i++) {
+      //   tempProposalInfo = await userSideContract.proposalIdtoproposal(
+      //     tempProposalId
+      //   );
+      //   governanceTokenContract = new ethers.Contract(
+      //     tempProposalInfo.governanceTokenAddress,
+      //     GovernanceTokenAbi,
+      //     signer
+      //   );
+      //   tokenSymbol = await governanceTokenContract.symbol();
+      //   tokenName = await governanceTokenContract.name();
+      //   console.log(tokenSymbol);
+      //   console.log(tokenName);
+      //   console.log(tempProposalInfo);
+      //   setProposalArray((prevState) => [
+      //     ...prevState,
+      //     {
+      //       proposalInfo: tempProposalInfo,
+      //       tokenName: tokenName,
+      //       tokenSymbol: tokenSymbol,
+      //     },
+      //   ]);
+      // }
       setPropSignal(true);
     }
+  };
+
+  const addProposal = async () => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const userSideContract = new ethers.Contract(
+      process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+      UserSideAbi,
+      signer
+    );
+
+    console.log(title);
+    console.log(description);
+    console.log(votingthreshold);
+    console.log(daoInfo.daoId.toString());
+    console.log(tokenAddress);
+    console.log(address);
+    console.log(startDate);
+    console.log(endTime);
+    console.log(passingThreshold);
+    console.log(voteOnce);
+    console.log(daoInfo);
+
+    const tx = await userSideContract.createProposal(
+      proposalType,
+      title + "|" + description,
+      votingthreshold,
+      daoInfo.daoId,
+      tokenAddress,
+      address,
+      startDate,
+      endTime,
+      passingThreshold,
+      voteOnce
+    );
+
+    await tx.wait();
+
+    toast({
+      title: "Proposal Created",
+      description: "Your proposal has been created",
+      status: "success",
+      duration: 5000,
+      isClosable: true,
+    });
   };
 
   if (loading) {
@@ -272,14 +322,17 @@ const index = () => {
         {adminInfo?.userWallet}
       </div>
 
-      <Button mt="2%" m={2} onClick={() => handleSizeClick1("xl")}>
-        Add Proposal{" "}
-      </Button>
+      {isMember ? (
+        <Button mt="2%" m={2} onClick={() => handleSizeClick1("xl")}>
+          Add Proposal{" "}
+        </Button>
+      ) : null}
 
-      <Button mt="2%" m={2} onClick={() => handleSizeClick3("xl")}>
-        Add member{" "}
-      </Button>
-
+      {adminInfo?.userWallet === address ? (
+        <Button mt="2%" m={2} onClick={() => handleSizeClick3("xl")}>
+          Add member
+        </Button>
+      ) : null}
       <Divider mt={12} mb={12} />
       <Grid
         templateColumns={{
@@ -333,55 +386,32 @@ const index = () => {
                         </Tr>
                       </Thead>
                       <Tbody>
-                        {proposalArray
-                          .filter(
-                            (proposal) =>
-                              proposal.proposalInfo.proposalStage == 1 //ongoing events
-                          )
-                          .map((proposal) => (
-                            <Tr>
-                              <Td>
-                                {Number(proposal.proposalInfo.proposalId)}
-                              </Td>
-                              <Td>{proposal.proposalInfo.proposalTitle}</Td>
-                              <Td>
-                                {proposal.proposalInfo.proposalDesription}
-                              </Td>
-                              <Td>{proposal.tokenName}</Td>
-                              <Td>
-                                {Number(proposal.proposalInfo.votingThreshold)}{" "}
-                                {proposal.tokenSymbol}
-                              </Td>
-                              <Td>
-                                {proposal.proposalInfo.governanceTokenAddress}
-                              </Td>
-                              <Td>
-                                <Button
-                                  onClick={() => {
-                                    setProposalForVote(
-                                      Number(proposal.proposalInfo.proposalId)
-                                    );
-                                    handleSizeClick2();
-                                  }}
-                                >
-                                  Vote Now
-                                </Button>
-                              </Td>
-                              {userRole == 1 && (
-                                <Td>
-                                  <Button
-                                    onClick={() => {
-                                      endVoting(
-                                        Number(proposal.proposalInfo.proposalId)
-                                      );
-                                    }}
-                                  >
-                                    End Voting
-                                  </Button>
-                                </Td>
-                              )}
-                            </Tr>
-                          ))}
+                        {proposalArray.map((proposal) => (
+                          <Tr>
+                            <Td>{Number(proposal.proposalInfo.proposalId)}</Td>
+                            <Td>{proposal.proposalInfo.proposalTitle}</Td>
+                            <Td>{proposal.proposalInfo.proposalDesription}</Td>
+                            <Td>{proposal.tokenName}</Td>
+                            <Td>
+                              {Number(proposal.proposalInfo.votingThreshold) /
+                                1e18}{" "}
+                              {proposal.tokenSymbol}
+                            </Td>
+                            <Td>{proposal.proposalInfo.votingTokenAddress}</Td>
+                            <Td>
+                              <Button
+                                onClick={() => {
+                                  setProposalForVote(
+                                    Number(proposal.proposalInfo.proposalId)
+                                  );
+                                  handleSizeClick2();
+                                }}
+                              >
+                                Vote Now
+                              </Button>
+                            </Td>
+                          </Tr>
+                        ))}
                       </Tbody>
                     </Table>
                   </TableContainer>
@@ -422,24 +452,8 @@ const index = () => {
                                 {proposal.tokenSymbol}
                               </Td>
                               <Td>
-                                {proposal.proposalInfo.governanceTokenAddress}
+                                {proposal.proposalInfo.votingTokenAddress}
                               </Td>
-                              {userRole == 1 && (
-                                <Td>
-                                  <Button
-                                    onClick={() => {
-                                      setStartVotingId(
-                                        Number(proposal.proposalInfo.proposalId)
-                                      );
-                                      startVoting(
-                                        Number(proposal.proposalInfo.proposalId)
-                                      );
-                                    }}
-                                  >
-                                    Start
-                                  </Button>
-                                </Td>
-                              )}
                             </Tr>
                           ))}
                       </Tbody>
@@ -679,7 +693,7 @@ const index = () => {
             </FormControl>
           </ModalBody>
           <ModalFooter>
-            <Button>Submit</Button>
+            <Button onClick={() => addProposal()}>Submit</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
