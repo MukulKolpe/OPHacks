@@ -56,6 +56,8 @@ contract UserSide{
 
     struct Document{
         uint256 documentId;
+        string documentTitle;
+        string documentDescription;
         string ipfsHash;
         uint256 upoladerId;
         uint256 daoId;
@@ -205,11 +207,11 @@ contract UserSide{
         return false;
     }
 
-    function uploadDocument(uint256 _daoId,string memory _ipfsHash) public {
+    function uploadDocument(string memory _documentTitle,string memory _documentDesc,uint256 _daoId,string memory _ipfsHash) public {
         checkMembership(_daoId,msg.sender);
         totalDocuments++;
         uint256 tempUserId = userWallettoUserId[msg.sender];
-        Document memory d1 = Document(totalDocuments,_ipfsHash,tempUserId,_daoId);
+        Document memory d1 = Document(totalDocuments,_documentTitle,_documentDesc,_ipfsHash,tempUserId,_daoId);
         documentIdtoDocument[totalDocuments] = d1;
         daoIdtoDocuments[_daoId].push(totalDocuments);
     }
