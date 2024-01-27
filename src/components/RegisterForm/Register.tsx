@@ -126,7 +126,7 @@ const RegisterForm = () => {
       const signer = ethersProvider.getSigner();
 
       const contract = new ethers.Contract(
-        "0x42098959B5D97c7C2AcD28E0B8d221348Fb8A60F",
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
         usersideabi,
         signer
       );
