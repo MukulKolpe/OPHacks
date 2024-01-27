@@ -4,16 +4,6 @@ import "contracts/GovernanceToken.sol";
 //import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "https://github.com/fractional-company/contracts/blob/master/src/OpenZeppelin/math/SafeMath.sol";
 
-interface USDC {
-
-    function balanceOf(address account) external view returns (uint256);
-    function allowance(address owner, address spender) external view returns (uint256);
-
-    function transfer(address recipient, uint256 amount) external returns (bool);
-    function approve(address spender, uint256 amount) external returns (bool);
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-
-}
 
 contract UserSide{
     using SafeMath for uint256;
@@ -123,6 +113,7 @@ contract UserSide{
         );
         daoIdtoDao[totalDaos] = d1;
         daoIdtoMembers[totalDaos].push(creatorId);
+        userIdtoDaos[creatorId].push(totalDaos);
     }
 
     function createProposal(
@@ -138,8 +129,8 @@ contract UserSide{
         bool _voteOnce
     ) public {
         address daoGovernanceToken = daoIdtoDao[_daoId].governanceTokenAddress;
-        USDC usdInst = USDC(daoGovernanceToken);
-        require(usdInst.balanceOf(_userWalletAddress) >= daoIdtoDao[_daoId].proposingThreshold,"You do nt have enough tokens");
+        GovernanceToken govtToken = GovernanceToken(daoGovernanceToken);
+        require(govtToken.balanceOf(_userWalletAddress) >= daoIdtoDao[_daoId].proposingThreshold,"You do nt have enough tokens");
         totalProposals++;
         uint256 tempProposerId = userWallettoUserId[_userWalletAddress];
         proposal memory p1 = proposal(
