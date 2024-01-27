@@ -17,24 +17,9 @@ import {
   Image,
   SimpleGrid,
   Link,
+  Flex,
 } from "@chakra-ui/react";
 import { FaExternalLinkAlt } from "react-icons/fa";
-
-const projects = [
-  {
-    id: 1,
-    title: "Portfolio Website",
-    description: "My personal portfolio showcasing my skills and projects.",
-    link: "https://www.example.com/portfolio",
-  },
-  {
-    id: 2,
-    title: "React Chat App",
-    description: "Real-time chat application built using React and Firebase.",
-    link: "https://www.example.com/react-chat-app",
-  },
-  // Add more projects as needed
-];
 
 const Profile = () => {
   const account = useAccount();
@@ -97,7 +82,7 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    return () => onLoad();
+    onLoad();
   }, []);
 
   console.log(userDaos);
@@ -118,33 +103,56 @@ const Profile = () => {
       </Box>
 
       <Box mt={4}>
-        <Heading size="md">DAO's you are part of</Heading>
+        {userDaos?.length !== 0 && <Heading size="md">My DAO's</Heading>}
         <SimpleGrid columns={1} spacing={4} mt={2}>
-          {userDaos.map((dao) => (
-            <Box
-              key={dao.daoInfo[0].toString()}
-              p={4}
+          {userDaos?.length === 0 ? (
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              h="200px"
+              w="500px"
+              bg="teal.800"
               borderWidth="1px"
               borderRadius="lg"
-              position="relative"
+              p={8}
+              textAlign="center"
+              boxShadow="md"
             >
-              <Heading size="sm">{dao.daoInfo.daoName}</Heading>
-              <Text mt={2}>{dao.daoInfo.daoDescription}</Text>
-              <Link
-                color="teal.500"
-                href={`https://op-hacks.vercel.app/dao/${dao.daoInfo[0].toString()}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                position="absolute"
-                top="4"
-                right="4"
-                fontSize="xl"
-                _hover={{ textDecoration: "underline" }}
-              >
-                <Icon as={FaExternalLinkAlt} ml={2} />
+              <Text fontSize="lg" mb={4} fontWeight="bold" color="white">
+                You do not any membership DAO's yet
+              </Text>
+              <Link href="/explore">
+                <Button colorScheme="green">Join a DAO</Button>
               </Link>
-            </Box>
-          ))}
+            </Flex>
+          ) : (
+            userDaos.map((dao) => (
+              <Box
+                key={dao.daoInfo[0].toString()}
+                p={4}
+                borderWidth="1px"
+                borderRadius="lg"
+                position="relative"
+              >
+                <Heading size="sm">{dao.daoInfo.daoName}</Heading>
+                <Text mt={2}>{dao.daoInfo.daoDescription}</Text>
+                <Link
+                  color="teal.500"
+                  href={`https://op-hacks.vercel.app/dao/${dao.daoInfo[0].toString()}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  position="absolute"
+                  top="4"
+                  right="4"
+                  fontSize="xl"
+                  _hover={{ textDecoration: "underline" }}
+                >
+                  <Icon as={FaExternalLinkAlt} ml={2} />
+                </Link>
+              </Box>
+            ))
+          )}
         </SimpleGrid>
       </Box>
     </Box>
