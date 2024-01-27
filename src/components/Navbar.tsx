@@ -102,19 +102,6 @@ export default function Navbar() {
                   display={{ base: "none", md: "flex" }}
                   marginRight={4}
                 >
-                  <Link href="/create-proposal">
-                    <Button w="full" variant="ghost">
-                      Create Proposal
-                    </Button>
-                  </Link>
-                </HStack>
-
-                <HStack
-                  as={"nav"}
-                  spacing={4}
-                  display={{ base: "none", md: "flex" }}
-                  marginRight={4}
-                >
                   <Link href="/profile">
                     <Button w="full" variant="ghost">
                       Profile
@@ -153,13 +140,7 @@ export default function Navbar() {
                 </Button>
               </Link>
             </Stack>
-            <Stack as={"nav"} spacing={4}>
-              <Link href="/create-proposal">
-                <Button w="full" variant="ghost">
-                  Create Proposal
-                </Button>
-              </Link>
-            </Stack>
+
             <Stack as={"nav"} spacing={4}>
               <Link href="/profile">
                 <Button w="full" variant="ghost">
