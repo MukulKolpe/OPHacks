@@ -13,7 +13,6 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 
