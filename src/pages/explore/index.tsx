@@ -140,6 +140,7 @@ const Explore = () => {
                     tokenName={dao.tokenName}
                     tokenSymbol={dao.tokenSymbol}
                     totalDaoMember={totaluserDAO}
+                    daoId={dao.daoInfo.daoId}
                   />
                 </GridItem>
               ))}

@@ -22,9 +22,13 @@ import {
 } from "@chakra-ui/react";
 import { Link } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { AddIcon } from "@chakra-ui/icons";
 import { RiTokenSwapFill } from "react-icons/ri";
 import { MdOutlineGroups3 } from "react-icons/md";
 import { RiAdminLine } from "react-icons/ri";
+import usersideabi from "../../utils/usersideabi.json";
+import { ParticleProvider } from "@particle-network/provider";
+import { ethers } from "ethers";
 
 interface IBlogTags {
   tags: Array<string>;
@@ -82,8 +86,58 @@ const DaosCard = ({
   tokenSymbol,
   creatorName,
   totalDaoMember,
+  daoId,
 }) => {
   const toast = useToast();
+
+  const joinDao = async () => {
+    if (window.ethereum._state.accounts.length !== 0) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        usersideabi,
+        signer
+      );
+      const accounts = await provider.listAccounts();
+      const tx = await contract.joinDao(daoId, accounts[0]);
+      await tx.wait();
+
+      toast({
+        title: "Congratulations!",
+        description: "You have successfully joined the DAO",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } else {
+      const particleProvider = new ParticleProvider(particle.auth);
+      const accounts = await particleProvider.request({
+        method: "eth_accounts",
+      });
+      const ethersProvider = new ethers.providers.Web3Provider(
+        particleProvider,
+        "any"
+      );
+      const signer = ethersProvider.getSigner();
+
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        usersideabi,
+        signer
+      );
+      const tx = await contract.joinDao(daoId, accounts[0]);
+      await tx.wait();
+
+      toast({
+        title: "Congratulations!",
+        description: "You have successfully joined the DAO",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
   return (
     <Center>
       <Box
@@ -263,8 +317,18 @@ const DaosCard = ({
             </Flex>
           </Flex>
 
-          <Button margin={6}>
+          <Button margin={6} mb={2}>
             View More <ExternalLinkIcon mx="2px" />
+          </Button>
+
+          <Button
+            marginRight={6}
+            marginLeft={6}
+            marginBottom={2}
+            mt={2}
+            onClick={joinDao}
+          >
+            <AddIcon mx="2px" /> Join DAO
           </Button>
         </Box>
       </Box>
