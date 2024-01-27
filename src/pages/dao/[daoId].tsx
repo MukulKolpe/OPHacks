@@ -4,18 +4,131 @@ import { useRouter } from "next/router";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
 import usersideabi from "../../utils/usersideabi.json";
-import { Center } from "@chakra-ui/react";
+import {
+  FormHelperText,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  Button,
+  Textarea,
+  Heading,
+  useToast,
+  Avatar,
+  Center,
+  Image,
+  Flex,
+  Text,
+  Stack,
+  useColorModeValue,
+  FormControl,
+  FormLabel,
+  Icon,
+  Input,
+  VisuallyHidden,
+  chakra,
+  Grid,
+  GridItem,
+  Tooltip,
+  VStack,
+  Divider,
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
+  TabPanels,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanel,
+  Radio,
+  RadioGroup,
+  Select,
+} from "@chakra-ui/react";
 
 const index = () => {
   const router = useRouter();
   const account = useAccount();
   const [isMember, setIsMember] = useState(false);
+  const [size, setSize] = useState("md");
+  const [propSignal, setPropSignal] = useState(false);
   const [daoInfo, setDaoInfo] = useState([]);
   const [loading, setLoading] = useState(true);
   const [daoProposals, setDaoProposals] = useState([]);
   const [daoMembers, setDaoMembers] = useState([]);
   const [totalMembers, setTotalMembers] = useState(0);
+  const [voteOnce, setvoteOnce] = useState(true);
   const [adminInfo, setAdminInfo] = useState();
+  const [votingthreshold, setVotingThreshold] = useState();
+  const [startDate, setStartDate] = useState();
+  const [passingThreshold, setPassingThreshold] = useState();
+  const [proposalType, setProposalType] = useState();
+
+  const [endTime, setEndTime] = useState();
+
+  const convertToEpoch = (dateString: any) => {
+    const epochValue = new Date(dateString + "T00:00:00Z").getTime() / 1000;
+    return epochValue;
+  };
+
+  console.log(startDate);
+
+  // add proposal
+  const {
+    isOpen: isAddOpen,
+    onOpen: onAddOpen,
+    onClose: onAddClose,
+  } = useDisclosure();
+
+  // to vote
+  const {
+    isOpen: isVoteOpen,
+    onOpen: onVoteOpen,
+    onClose: onVoteClose,
+  } = useDisclosure();
+
+  //add new member to dao
+  const {
+    isOpen: isStartOpen,
+    onOpen: onStartOpen,
+    onClose: onStartClose,
+  } = useDisclosure();
+
+  //view results
+  const {
+    isOpen: isEndOpen,
+    onOpen: onEndOpen,
+    onClose: onEndClose,
+  } = useDisclosure();
+
+  const handleSizeClick1 = (newSize) => {
+    setSize(newSize);
+    onAddOpen();
+  };
+
+  const handleSizeClick2 = (newSize) => {
+    setSize(newSize);
+    onVoteOpen();
+  };
+
+  const handleSizeClick3 = (newSize) => {
+    setSize(newSize);
+    onStartOpen();
+  };
+
+  const handleSizeClick4 = (newSize) => {
+    setSize(newSize);
+    onEndOpen();
+  };
 
   const onLoad = async () => {
     const daoId = router.query.daoId;
@@ -87,6 +200,56 @@ const index = () => {
     onLoad();
   }, [router]);
 
+  console.log(proposalType);
+
+  const loadAllProposals = async () => {
+    if (window.ethereum._state.accounts.length !== 0) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const userSideContract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        UserSideAbi,
+        signer
+      );
+
+      const totalProposals = Number(
+        await userSideContract.getTotalProposals(BigInt(daoId))
+      );
+      let tempProposalId,
+        tempProposalInfo,
+        governanceTokenContract,
+        tokenSymbol,
+        tokenName;
+      for (let i = 0; i < totalProposals; i++) {
+        tempProposalId = Number(
+          await userSideContract.getDaoProposalId(daoId, i)
+        );
+        tempProposalInfo = await userSideContract.proposalIdtoproposal(
+          tempProposalId
+        );
+        governanceTokenContract = new ethers.Contract(
+          tempProposalInfo.governanceTokenAddress,
+          GovernanceTokenAbi,
+          signer
+        );
+        tokenSymbol = await governanceTokenContract.symbol();
+        tokenName = await governanceTokenContract.name();
+        console.log(tokenSymbol);
+        console.log(tokenName);
+        console.log(tempProposalInfo);
+        setProposalArray((prevState) => [
+          ...prevState,
+          {
+            proposalInfo: tempProposalInfo,
+            tokenName: tokenName,
+            tokenSymbol: tokenSymbol,
+          },
+        ]);
+      }
+      setPropSignal(true);
+    }
+  };
+
   if (loading) {
     return <Center>Loading...</Center>;
   }
@@ -94,6 +257,8 @@ const index = () => {
   if (daoInfo.isPrivate && !isMember) {
     return <Center>You are not the member of this DAO.</Center>;
   }
+
+  console.log(voteOnce);
 
   return (
     <div>
@@ -103,8 +268,8 @@ const index = () => {
       <div> Total Members: {totalMembers} </div>
       <div>
         {" "}
-        Creator Name and Wallet Address: {adminInfo.userName} -{" "}
-        {adminInfo.userWallet}
+        Creator Name and Wallet Address: {adminInfo?.userName} -{" "}
+        {adminInfo?.userWallet}
       </div>
 
       <Button mt="2%" m={2} onClick={() => handleSizeClick1("xl")}>
@@ -390,14 +555,28 @@ const index = () => {
             </FormControl>
             <FormControl mr="2%" mt="2%" isRequired>
               <FormLabel htmlFor="name" fontWeight={"normal"}>
-                Threshold
+                Voting Threshold
               </FormLabel>
               <Input
                 id="threshholdToken"
-                placeholder="Minimum tokens required to join DAO"
+                placeholder="Enter Minimum tokens required to vote"
                 autoComplete="email"
-                onChange={(e) => setThreshold(e.target.value)}
+                onChange={(e) => setVotingThreshold(e.target.value)}
               />
+            </FormControl>
+            <FormControl mr="2%" mt="2%" isRequired>
+              <FormLabel htmlFor="name" fontWeight={"normal"}>
+                Passing Threshold
+              </FormLabel>
+              <Input
+                id="threshholdToken"
+                placeholder="Enter Minimum tokens required to pass proposal"
+                autoComplete="email"
+                onChange={(e) => setPassingThreshold(e.target.value)}
+              />
+              <FormHelperText>
+                Enter minimum number of votes to pass a proposal
+              </FormHelperText>
             </FormControl>
             <FormControl mr="2%" mt="2%" isRequired>
               <FormLabel htmlFor="name" fontWeight={"normal"}>
@@ -409,9 +588,98 @@ const index = () => {
                 onChange={(e) => setTokenAddress(e.target.value)}
               />
             </FormControl>
+
+            <FormControl mr="5%">
+              <FormLabel
+                htmlFor="datetime-local"
+                fontWeight={"normal"}
+                isRequired
+              >
+                Voting Start Date
+              </FormLabel>
+              <Input
+                placeholder="Select Date "
+                size="md"
+                type="date"
+                id="datetime-local"
+                onChange={(e) => {
+                  setStartDate(convertToEpoch(e.target.value) as any);
+                }}
+              />
+            </FormControl>
+
+            <FormControl mr="5%">
+              <FormLabel
+                htmlFor="datetime-local"
+                fontWeight={"normal"}
+                isRequired
+              >
+                Voting End Date
+              </FormLabel>
+              <Input
+                placeholder="Select Date and Time"
+                size="md"
+                type="date"
+                id="datetime-local"
+                onChange={(e) => {
+                  setEndTime(convertToEpoch(e.target.value) as any);
+                }}
+              />
+            </FormControl>
+            <FormControl mr="5%" mt="3%" isRequired>
+              <FormLabel htmlFor="first-name" fontWeight={"normal"}>
+                Allow voting only once
+              </FormLabel>
+              <RadioGroup defaultValue="2">
+                <Stack spacing={5} direction="row">
+                  <Radio
+                    colorScheme="red"
+                    value="1"
+                    onChange={() => setvoteOnce(false)}
+                  >
+                    No
+                  </Radio>
+                  <Radio
+                    colorScheme="green"
+                    value="2"
+                    onChange={() => setvoteOnce(true)}
+                  >
+                    Yes
+                  </Radio>
+                </Stack>
+              </RadioGroup>
+            </FormControl>
+            <FormControl mr="5%" mt="3%" isRequired>
+              <FormLabel
+                htmlFor="specialization"
+                fontSize="sm"
+                fontWeight="md"
+                color="gray.700"
+                _dark={{
+                  color: "gray.50",
+                }}
+              >
+                Proposal Type
+              </FormLabel>
+              <Select
+                id="specialization"
+                name="specialization"
+                autoComplete="specialization"
+                placeholder="Select option"
+                focusBorderColor="brand.400"
+                shadow="sm"
+                size="sm"
+                w="full"
+                rounded="md"
+                onChange={(e) => setProposalType(e.target.value)}
+              >
+                <option value="1">Standard Voting</option>
+                <option value="2">Quadratic Voting</option>
+              </Select>
+            </FormControl>
           </ModalBody>
           <ModalFooter>
-            <Button onClick={createProposal}>Submit</Button>
+            <Button>Submit</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -465,7 +733,7 @@ const index = () => {
             />
           </ModalBody>
           <ModalFooter>
-            <Button onClick={addmembertoDao}>Submit</Button>
+            <Button>Submit</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -474,7 +742,7 @@ const index = () => {
         <ModalContent>
           <ModalHeader>Voting Results: </ModalHeader>
           <ModalBody>
-            <TableContainer>
+            {/* <TableContainer>
               <Table variant="simple">
                 <Tr>
                   <Td>Yes</Td>
@@ -489,7 +757,7 @@ const index = () => {
                   <Td isNumeric>{finalVerdict}</Td>
                 </Tr>
               </Table>
-            </TableContainer>
+            </TableContainer> */}
           </ModalBody>
           <ModalCloseButton />
         </ModalContent>
