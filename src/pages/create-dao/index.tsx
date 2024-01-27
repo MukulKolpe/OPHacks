@@ -7,7 +7,9 @@ import {
   useColorModeValue,
   Box,
   Button,
-  Text, // Import the Text component
+  Text,
+  Image,
+  Center,
 } from "@chakra-ui/react";
 
 const CreateDao = () => {
@@ -26,10 +28,19 @@ const CreateDao = () => {
       {showBtn ? (
         <Box
           display="flex"
-          justifyContent="center"
+          justifyContent="space-around"
           alignItems="center"
           height="80vh"
         >
+          <Box textDecoration="none" _hover={{ textDecoration: "none" }}>
+            <Image
+              borderRadius="lg"
+              src="/assets/tokens.webp"
+              alt="Tokens Image"
+              objectFit="contain"
+              width={275}
+            />
+          </Box>
           <Box width="50%">
             <Button
               width="45%"
