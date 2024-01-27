@@ -13,6 +13,7 @@ contract UserSide{
     uint256 public totalProposals = 0;
     uint256 public totalDaos = 0;
     uint256 public contractCreationTime = 0;
+    uint256 public totalDocuments = 0;
 
     constructor() {
         userSideAdmin = msg.sender;
@@ -53,6 +54,13 @@ contract UserSide{
         bool voteOnce;
     }
 
+    struct Document{
+        uint256 documentId;
+        string ipfsHash;
+        uint256 upoladerId;
+        uint256 daoId;
+    }
+
     mapping(uint256 => user) public userIdtoUser;
     mapping(address => uint256) public userWallettoUserId;
     mapping(uint256 => dao) public daoIdtoDao;
@@ -67,6 +75,9 @@ contract UserSide{
     // proposalId => ( userId => weights )
     mapping(uint256 => mapping(uint256 => uint256)) public quadraticYesMappings;
     mapping(uint256 => mapping(uint256 => uint256)) public quadraticNoMappings;
+
+    mapping(uint256 => Document) public documentIdtoDocument;
+    mapping(uint256 => uint256[]) public daoIdtoDocuments;
     
 
     function createUser(
@@ -192,6 +203,15 @@ contract UserSide{
             }
         }
         return false;
+    }
+
+    function uploadDocument(uint256 _daoId,string memory _ipfsHash) public {
+        checkMembership(_daoId,msg.sender);
+        totalDocuments++;
+        uint256 tempUserId = userWallettoUserId[msg.sender];
+        Document memory d1 = Document(totalDocuments,_ipfsHash,tempUserId,_daoId);
+        documentIdtoDocument[totalDocuments] = d1;
+        daoIdtoDocuments[_daoId].push(totalDocuments);
     }
 
     function hasVoted(uint256 _userId,uint256 _proposalId) public view returns(bool) {
@@ -324,6 +344,10 @@ contract UserSide{
 
     function getAllUserDaos(uint256 _userId) public view returns (uint256[] memory) {
         return userIdtoDaos[_userId];
+    }
+
+    function getAllDaoDocuments(uint256 _daoId) public view returns(uint256[] memory) {
+        return daoIdtoDocuments[_daoId];
     }
     
 }
