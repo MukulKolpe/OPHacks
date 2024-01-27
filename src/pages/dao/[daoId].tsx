@@ -80,6 +80,8 @@ const index = () => {
   const [passingThreshold, setPassingThreshold] = useState();
   const { address } = useAccount();
   const [proposalType, setProposalType] = useState();
+  const [proposalForVote, setProposalForVote] = useState(0);
+  const [userResponse, setUserResponse] = useState(-1);
 
   const [endTime, setEndTime] = useState();
 
@@ -174,6 +176,60 @@ const index = () => {
       }
     }
   };
+
+  const authorizeContract = async () => {
+    if (window?.ethereum?._state?.accounts?.length !== 0) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const userSideInstance = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        usersideabi,
+        signer
+      );
+      console.log(userSideInstance);
+      const accounts = await provider.listAccounts();
+      const propInfo = await userSideInstance.proposalIdtoProposal(
+        proposalForVote
+      );
+      const govTokenAdd = propInfo.votingTokenAddress;
+      var minThreshold = propInfo.votingThreshold;
+      const govTokenContract = new ethers.Contract(
+        govTokenAdd,
+        GovernanceTokenAbi,
+        signer
+      );
+      const tokenSymbol = await govTokenContract.symbol();
+      console.log(tokenSymbol);
+      const tx = await govTokenContract.approve(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        minThreshold
+      );
+      await tx.wait();
+      toast({
+        title: "Congrats! Transaction Complete",
+        description: `Your vote will be counted soon.`,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
+      const tx2 = await userSideInstance.voteForProposal(
+        proposalForVote,
+        userResponse,
+        account.address
+      );
+      await tx2.wait();
+      toast({
+        title: "Congrats.",
+        description: `Your vote has been counted.`,
+        status: "success",
+        duration: 10000,
+        isClosable: true,
+        position: "top-right",
+      });
+    }
+  };
+
   useEffect(() => {
     onLoad();
   }, [router]);
@@ -300,6 +356,29 @@ const index = () => {
     });
   };
 
+  const convertTimeToEpoch = async () => {
+    var now = new Date();
+    var timestamp = now.getTime();
+    var secondsSinceEpoch = timestamp / 1000;
+    return secondsSinceEpoch;
+  };
+
+  const filteringDaos = (beginningTime, endingTime) => {
+    var now = new Date();
+    var timestamp = now.getTime();
+    var secondsSinceEpoch = timestamp / 1000;
+    console.log(beginningTime);
+    if (secondsSinceEpoch < Number(beginningTime)) {
+      //to be happening in future
+      return -1;
+    }
+    if (secondsSinceEpoch > Number(endingTime)) {
+      //to have happened in past
+      return 1;
+    }
+    return 0;
+  };
+
   if (loading) {
     return <Center>Loading...</Center>;
   }
@@ -315,6 +394,7 @@ const index = () => {
       <div>This is dao number: {Number(daoInfo.daoId)}</div>
       <div>Dao Name: {daoInfo.daoName}</div>
       <div> Dao description: {daoInfo.daoDescription} </div>
+      <div> Dao Governance Token: {daoInfo.governanceTokenAddress} </div>
       <div> Total Members: {totalMembers} </div>
       <div>
         {" "}
@@ -382,36 +462,49 @@ const index = () => {
                           <Th>Voting Threshold</Th>
                           <Th>Token Address</Th>
                           <Th>Vote</Th>
-                          <Th>End Voting</Th>
                         </Tr>
                       </Thead>
                       <Tbody>
-                        {proposalArray.map((proposal) => (
-                          <Tr>
-                            <Td>{Number(proposal.proposalInfo.proposalId)}</Td>
-                            <Td>{proposal.proposalInfo.proposalTitle}</Td>
-                            <Td>{proposal.proposalInfo.proposalDesription}</Td>
-                            <Td>{proposal.tokenName}</Td>
-                            <Td>
-                              {Number(proposal.proposalInfo.votingThreshold) /
-                                1e18}{" "}
-                              {proposal.tokenSymbol}
-                            </Td>
-                            <Td>{proposal.proposalInfo.votingTokenAddress}</Td>
-                            <Td>
-                              <Button
-                                onClick={() => {
-                                  setProposalForVote(
-                                    Number(proposal.proposalInfo.proposalId)
-                                  );
-                                  handleSizeClick2();
-                                }}
-                              >
-                                Vote Now
-                              </Button>
-                            </Td>
-                          </Tr>
-                        ))}
+                        {proposalArray
+                          .filter(
+                            (proposal) =>
+                              filteringDaos(
+                                proposal.proposalInfo.beginningTime,
+                                proposal.proposalInfo.endingTime
+                              ) == 0
+                          )
+                          .map((proposal) => (
+                            <Tr>
+                              <Td>
+                                {Number(proposal.proposalInfo.proposalId)}
+                              </Td>
+                              <Td>{proposal.proposalInfo.proposalTitle}</Td>
+                              <Td>
+                                {proposal.proposalInfo.proposalDesription}
+                              </Td>
+                              <Td>{proposal.tokenName}</Td>
+                              <Td>
+                                {Number(proposal.proposalInfo.votingThreshold) /
+                                  1e18}{" "}
+                                {proposal.tokenSymbol}
+                              </Td>
+                              <Td>
+                                {proposal.proposalInfo.votingTokenAddress}
+                              </Td>
+                              <Td>
+                                <Button
+                                  onClick={() => {
+                                    setProposalForVote(
+                                      Number(proposal.proposalInfo.proposalId)
+                                    );
+                                    handleSizeClick2();
+                                  }}
+                                >
+                                  Vote Now
+                                </Button>
+                              </Td>
+                            </Tr>
+                          ))}
                       </Tbody>
                     </Table>
                   </TableContainer>
@@ -435,7 +528,10 @@ const index = () => {
                         {proposalArray
                           .filter(
                             (proposal) =>
-                              proposal.proposalInfo.proposalStage == 0 //for upcoming events
+                              filteringDaos(
+                                proposal.proposalInfo.beginningTime,
+                                proposal.proposalInfo.endingTime
+                              ) == -1
                           )
                           .map((proposal) => (
                             <Tr>
@@ -479,7 +575,10 @@ const index = () => {
                         {proposalArray
                           .filter(
                             (proposal) =>
-                              proposal.proposalInfo.proposalStage == 2 //for past events
+                              filteringDaos(
+                                proposal.proposalInfo.beginningTime,
+                                proposal.proposalInfo.endingTime
+                              ) == 1
                           )
                           .map((proposal) => (
                             <Tr>
@@ -709,8 +808,9 @@ const index = () => {
               }}
               placeholder="Select option"
             >
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
+              <option value={1}>Yes</option>
+              <option value={2}>No</option>
+              <option value={3}>Abstain</option>
             </Select>
           </ModalBody>
           <Text ml={7} mt={2}>
