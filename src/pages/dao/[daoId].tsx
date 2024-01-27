@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
 import usersideabi from "../../utils/usersideabi.json";
+import { FaExternalLinkAlt } from "react-icons/fa";
 import {
   FormHelperText,
   Modal,
@@ -25,6 +26,8 @@ import {
   Flex,
   Text,
   Stack,
+  Box,
+  Link,
   useColorModeValue,
   FormControl,
   FormLabel,
@@ -234,7 +237,7 @@ const index = () => {
     onLoad();
   }, [router]);
 
-  console.log(proposalType);
+  console.log(proposalArray);
 
   const loadAllProposals = async () => {
     if (window.ethereum._state.accounts.length !== 0) {
@@ -363,6 +366,10 @@ const index = () => {
     return secondsSinceEpoch;
   };
 
+  let now1 = new Date();
+  let timestamp1 = now1.getTime();
+  let currentTimestamp = timestamp1 / 1000;
+
   const filteringDaos = (beginningTime, endingTime) => {
     var now = new Date();
     var timestamp = now.getTime();
@@ -450,170 +457,194 @@ const index = () => {
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  <TableContainer>
-                    <Table variant="simple">
-                      <TableCaption>All Proposals</TableCaption>
-                      <Thead>
-                        <Tr>
-                          <Th>Proposal Id.</Th>
-                          <Th> Title</Th>
-                          <Th>Description</Th>
-                          <Th>Votin Token</Th>
-                          <Th>Voting Threshold</Th>
-                          <Th>Token Address</Th>
-                          <Th>Vote</Th>
-                        </Tr>
-                      </Thead>
-                      <Tbody>
-                        {proposalArray
-                          .filter(
-                            (proposal) =>
-                              filteringDaos(
-                                proposal.proposalInfo.beginningTime,
-                                proposal.proposalInfo.endingTime
-                              ) == 0
-                          )
-                          .map((proposal) => (
-                            <Tr>
-                              <Td>
-                                {Number(proposal.proposalInfo.proposalId)}
-                              </Td>
-                              <Td>{proposal.proposalInfo.proposalTitle}</Td>
-                              <Td>
-                                {proposal.proposalInfo.proposalDesription}
-                              </Td>
-                              <Td>{proposal.tokenName}</Td>
-                              <Td>
-                                {Number(proposal.proposalInfo.votingThreshold) /
-                                  1e18}{" "}
-                                {proposal.tokenSymbol}
-                              </Td>
-                              <Td>
-                                {proposal.proposalInfo.votingTokenAddress}
-                              </Td>
-                              <Td>
-                                <Button
-                                  onClick={() => {
-                                    setProposalForVote(
-                                      Number(proposal.proposalInfo.proposalId)
-                                    );
-                                    handleSizeClick2();
-                                  }}
-                                >
-                                  Vote Now
-                                </Button>
-                              </Td>
-                            </Tr>
-                          ))}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+                  {proposalArray
+                    .filter(
+                      (proposal) =>
+                        filteringDaos(
+                          proposal.proposalInfo.beginningTime,
+                          proposal.proposalInfo.endingTime
+                        ) == 0
+                    )
+                    .map((proposal) => (
+                      <Box
+                        p={4}
+                        borderWidth="1px"
+                        borderRadius="lg"
+                        position="relative"
+                      >
+                        <Heading size="sm">
+                          {proposal.proposalInfo[2].substring(
+                            0,
+                            proposal.proposalInfo[2].indexOf("|")
+                          )}
+                        </Heading>
+                        <Text mt={2}>
+                          {proposal.proposalInfo[2].substring(
+                            proposal.proposalInfo[2].indexOf("|") + 1,
+                            proposal.proposalInfo[2].length
+                          )}
+                        </Text>
+
+                        <Flex mt={3}>
+                          <span mb={4} h={6}>
+                            {" "}
+                            ⚠️
+                          </span>
+                          <h3 mt={10}>
+                            {Math.floor(
+                              (proposal.proposalInfo.endingTime.toString() -
+                                currentTimestamp) /
+                                3600
+                            )}{" "}
+                            hrs remaining
+                          </h3>
+                        </Flex>
+                        {isMember ? (
+                          <Button
+                            onClick={() => {
+                              setProposalForVote(
+                                Number(proposal.proposalInfo.proposalId)
+                              );
+                              handleSizeClick2();
+                            }}
+                            mt={4}
+                            colorScheme="teal"
+                          >
+                            Vote Now
+                          </Button>
+                        ) : null}
+                      </Box>
+                    ))}
                 </TabPanel>
                 <TabPanel>
-                  <TableContainer>
-                    <Table variant="simple">
-                      <TableCaption>All Proposals</TableCaption>
-                      <Thead>
-                        <Tr>
-                          <Th>Proposal Id.</Th>
-                          <Th> Title</Th>
-                          <Th>Description</Th>
-                          <Th>Votin Token</Th>
-                          <Th>Voting Threshold</Th>
-                          <Th>Token Address</Th>
-                          <Th>Start Voting</Th>
-                        </Tr>
-                      </Thead>
-                      <Tbody>
-                        {proposalArray
-                          .filter(
-                            (proposal) =>
-                              filteringDaos(
-                                proposal.proposalInfo.beginningTime,
-                                proposal.proposalInfo.endingTime
-                              ) == -1
-                          )
-                          .map((proposal) => (
-                            <Tr>
-                              <Td>
-                                {Number(proposal.proposalInfo.proposalId)}
-                              </Td>
-                              <Td>{proposal.proposalInfo.proposalTitle}</Td>
-                              <Td>
-                                {proposal.proposalInfo.proposalDesription}
-                              </Td>
-                              <Td>{proposal.tokenName}</Td>
-                              <Td>
-                                {Number(proposal.proposalInfo.votingThreshold)}{" "}
-                                {proposal.tokenSymbol}
-                              </Td>
-                              <Td>
-                                {proposal.proposalInfo.votingTokenAddress}
-                              </Td>
-                            </Tr>
-                          ))}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+                  {proposalArray
+                    .filter(
+                      (proposal) =>
+                        filteringDaos(
+                          proposal.proposalInfo.beginningTime,
+                          proposal.proposalInfo.endingTime
+                        ) == -1
+                    )
+                    .map((proposal) => (
+                      <Box
+                        p={4}
+                        borderWidth="1px"
+                        borderRadius="lg"
+                        position="relative"
+                      >
+                        <Heading size="sm">
+                          {proposal.proposalInfo[2].substring(
+                            0,
+                            proposal.proposalInfo[2].indexOf("|")
+                          )}
+                        </Heading>
+                        <Text mt={2}>
+                          {proposal.proposalInfo.beginningTime.toString()}
+                        </Text>
+                        <Text mt={2}>
+                          {proposal.proposalInfo[2].substring(
+                            proposal.proposalInfo[2].indexOf("|") + 1,
+                            proposal.proposalInfo[2].length
+                          )}
+                        </Text>
+
+                        <Flex mt={3}>
+                          <span mb={4} h={6}>
+                            {" "}
+                            ⚠️
+                          </span>
+                          <h3 mt={10} ml={4}>
+                            {" "}
+                            {Math.floor(
+                              (proposal.proposalInfo.beginningTime -
+                                currentTimestamp) /
+                                3600
+                            )}{" "}
+                            hrs to start voting
+                          </h3>
+                        </Flex>
+                      </Box>
+                    ))}
                 </TabPanel>
                 <TabPanel>
-                  <TableContainer>
-                    <Table variant="simple">
-                      <TableCaption>All Proposals</TableCaption>
-                      <Thead>
-                        <Tr>
-                          <Th>Proposal Id.</Th>
-                          <Th> Title</Th>
-                          <Th>Description</Th>
-                          <Th>Votin Token</Th>
-                          <Th>Voting Threshold</Th>
-                          <Th>Token Address</Th>
-                          <Th>Results</Th>
-                        </Tr>
-                      </Thead>
-                      <Tbody>
-                        {proposalArray
-                          .filter(
-                            (proposal) =>
-                              filteringDaos(
-                                proposal.proposalInfo.beginningTime,
-                                proposal.proposalInfo.endingTime
-                              ) == 1
-                          )
-                          .map((proposal) => (
-                            <Tr>
-                              <Td>
-                                {Number(proposal.proposalInfo.proposalId)}
-                              </Td>
-                              <Td>{proposal.proposalInfo.proposalTitle}</Td>
-                              <Td>
-                                {proposal.proposalInfo.proposalDesription}
-                              </Td>
-                              <Td>{proposal.tokenName}</Td>
-                              <Td>
-                                {Number(proposal.proposalInfo.votingThreshold)}{" "}
-                                {proposal.tokenSymbol}
-                              </Td>
-                              <Td>
-                                {proposal.proposalInfo.governanceTokenAddress}
-                              </Td>
-                              <Td>
-                                <Button
-                                  onClick={() => {
-                                    getVotingResults(
-                                      Number(proposal.proposalInfo.proposalId)
-                                    );
-                                    handleSizeClick4();
-                                  }}
-                                >
-                                  View Results
-                                </Button>
-                              </Td>
-                            </Tr>
-                          ))}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
+                  {proposalArray
+                    .filter(
+                      (proposal) =>
+                        filteringDaos(
+                          proposal.proposalInfo.beginningTime,
+                          proposal.proposalInfo.endingTime
+                        ) == 1
+                    )
+                    .map((proposal) => (
+                      <Box
+                        p={4}
+                        borderWidth="1px"
+                        borderRadius="lg"
+                        position="relative"
+                      >
+                        <Heading size="sm">
+                          {proposal.proposalInfo[2].substring(
+                            0,
+                            proposal.proposalInfo[2].indexOf("|")
+                          )}
+                        </Heading>
+                        <Text mt={2}>
+                          {proposal.proposalInfo[2].substring(
+                            proposal.proposalInfo[2].indexOf("|") + 1,
+                            proposal.proposalInfo[2].length
+                          )}
+                        </Text>
+                        {proposal.proposalInfo.endingTime.toString()}
+                        <Flex mt={3}>
+                          <span mb={4} h={6}>
+                            {" "}
+                            ⚠️
+                          </span>
+                          <h3 mt={10}>
+                            Expired{" "}
+                            {Math.floor(
+                              (currentTimestamp -
+                                proposal.proposalInfo.endingTime.toString()) /
+                                3600
+                            )}{" "}
+                            hrs ago
+                          </h3>
+                        </Flex>
+
+                        <Button mt={4} colorScheme="teal">
+                          View Results
+                        </Button>
+                      </Box>
+                      // <Tr>
+                      //   <Td>
+                      //     {Number(proposal.proposalInfo.proposalId)}
+                      //   </Td>
+                      //   <Td>{proposal.proposalInfo.proposalTitle}</Td>
+                      //   <Td>
+                      //     {proposal.proposalInfo.proposalDesription}
+                      //   </Td>
+                      //   <Td>{proposal.tokenName}</Td>
+                      //   <Td>
+                      //     {Number(proposal.proposalInfo.votingThreshold)}{" "}
+                      //     {proposal.tokenSymbol}
+                      //   </Td>
+                      //   <Td>
+                      //     {proposal.proposalInfo.governanceTokenAddress}
+                      //   </Td>
+                      //   <Td>
+                      //     <Button
+                      //       onClick={() => {
+                      //         getVotingResults(
+                      //           Number(proposal.proposalInfo.proposalId)
+                      //         );
+                      //         handleSizeClick4();
+                      //       }}
+                      //     >
+                      //       View Results
+                      //     </Button>
+                      //   </Td>
+                      // </Tr>
+                    ))}
                 </TabPanel>
               </TabPanels>
             </Tabs>
