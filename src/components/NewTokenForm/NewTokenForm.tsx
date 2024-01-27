@@ -1,5 +1,6 @@
 // @ts-nocheck comment
 import { useState, useRef, useContext } from "react";
+import { ParticleProvider } from "@particle-network/provider";
 import { ethers } from "ethers";
 import {
   Progress,
@@ -35,6 +36,8 @@ import {
   useToast,
   ring,
 } from "@chakra-ui/react";
+import userSideabi from "../../utils/usersideabi.json";
+import creategovernanceabi from "../../utils/creategovernanceabi.json";
 
 const Form2 = ({ getName, getSummary }) => {
   const [show, setShow] = useState(false);
@@ -246,6 +249,167 @@ export default function NewTokenForm() {
   const [tokenSupply, setTokenSupply] = useState("");
   const [tokenAddress, settokenAddress] = useState("");
   const [daovisibility, setdaoVisibility] = useState(false);
+  const toast = useToast();
+
+  const mintToken = async () => {
+    if (window.ethereum._state.accounts.length !== 0) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const createTokenContract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_CREATE_GOVERNANACE_ADDRESS,
+        creategovernanceabi,
+        signer
+      );
+      const userSideContract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        userSideabi,
+        signer
+      );
+      const accounts = await provider.listAccounts();
+      console.log(accounts[0]);
+
+      const userId = await userSideContract.userWallettoUserId(accounts[0]);
+      console.log(userId);
+
+      console.log(tokenName);
+      console.log(symbol);
+      console.log(tokenSupply);
+
+      const tx = await createTokenContract.deployToken(
+        tokenName,
+        symbol,
+        tokenSupply,
+        userId
+      );
+      await tx.wait();
+      console.log(tx);
+      const totalTokens = await createTokenContract.getTotalTokesnDeployed(
+        userId
+      );
+      const mintedTokenAddress =
+        await createTokenContract.userIdtoDeployedTokens(
+          userId,
+          totalTokens - 1
+        );
+
+      settokenAddress(mintedTokenAddress);
+      toast({
+        title: "Tokens Minted",
+        description: `Token Address: ${mintedTokenAddress}`,
+        status: "success",
+        duration: 10000,
+        isClosable: true,
+      });
+      setMintDone(true);
+    } else {
+      const particleProvider = new ParticleProvider(particle.auth);
+      const accounts = await particleProvider.request({
+        method: "eth_accounts",
+      });
+      const ethersProvider = new ethers.providers.Web3Provider(
+        particleProvider,
+        "any"
+      );
+      const signer = ethersProvider.getSigner();
+
+      const createTokenContract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_CREATE_GOVERNANACE_ADDRESS,
+        creategovernanceabi,
+        signer
+      );
+      const userSideContract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        userSideabi,
+        signer
+      );
+
+      const userId = await userSideContract.userWallettoUserId(accounts[0]);
+
+      const tx = await createTokenContract.deployToken(
+        tokenName,
+        symbol,
+        tokenSupply,
+        userId
+      );
+
+      await tx.wait();
+
+      const totalTokens = await createTokenContract.getTotalTokesnDeployed(
+        userId
+      );
+      const mintedTokenAddress =
+        await createTokenContract.userIdtoDeployedTokens(
+          userId,
+          totalTokens - 1
+        );
+
+      settokenAddress(mintedTokenAddress);
+      toast({
+        title: "Tokens Minted",
+        description: `Token Address: ${mintedTokenAddress}`,
+        status: "success",
+        duration: 10000,
+        isClosable: true,
+      });
+      setMintDone(true);
+    }
+  };
+
+  const createDAO = async () => {
+    if (window.ethereum._state.accounts.length !== 0) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      const signer = provider.getSigner();
+
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        userSideabi,
+        signer
+      );
+
+      const accounts = await provider.listAccounts();
+
+      const tx = await contract.createDao(
+        name,
+        desc,
+        threshholdToken,
+        proposalToken,
+        tokenAddress,
+        daovisibility,
+        accounts[0]
+      );
+
+      console.log(tx);
+    } else {
+      const particleProvider = new ParticleProvider(particle.auth);
+      const accounts = await particleProvider.request({
+        method: "eth_accounts",
+      });
+      const ethersProvider = new ethers.providers.Web3Provider(
+        particleProvider,
+        "any"
+      );
+      const signer = ethersProvider.getSigner();
+
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        userSideabi,
+        signer
+      );
+
+      const tx = await contract.createDao(
+        name,
+        desc,
+        threshholdToken,
+        proposalToken,
+        tokenAddress,
+        daovisibility,
+        accounts[0]
+      );
+
+      console.log(tx);
+    }
+  };
 
   return (
     <Box
@@ -285,7 +449,7 @@ export default function NewTokenForm() {
             {step === 1 ? (
               <Button
                 onClick={() => {
-                  setMintDone(true);
+                  mintToken();
                 }}
                 colorScheme="teal"
                 variant="solid"
@@ -331,7 +495,7 @@ export default function NewTokenForm() {
               colorScheme="red"
               variant="solid"
               onClick={() => {
-                handleSubmit();
+                createDAO();
               }}
             >
               Submit

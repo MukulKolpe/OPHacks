@@ -333,7 +333,7 @@ const RegisterForm = () => {
           w="10rem"
           colorScheme="purple"
           variant="solid"
-          onClick={getUser}
+          onClick={handleSubmit}
         >
           Register
         </Button>
