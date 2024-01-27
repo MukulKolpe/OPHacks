@@ -105,7 +105,7 @@ const Explore = () => {
   };
 
   useEffect(() => {
-    return () => onLoad();
+    onLoad();
   }, []);
 
   return (
