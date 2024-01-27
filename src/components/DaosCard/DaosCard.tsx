@@ -175,11 +175,11 @@ const DaosCard = ({
           <Box textDecoration="none" _hover={{ textDecoration: "none" }}>
             <Image
               borderRadius="lg"
-              src="/assets/DAOsCoverImage.jpg"
+              src="/assets/dao.png"
               alt="Cover Image"
               //   objectFit="contain"
               _placeholder={blur}
-              width={{ base: "100%", sm: "95%" }}
+              width={{ base: "100%", sm: "100%" }}
               rounded={{ base: "none", sm: "xl" }}
               height={{ base: "100%", sm: "100%" }}
               zIndex="2"

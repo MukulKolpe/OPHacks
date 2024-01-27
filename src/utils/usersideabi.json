@@ -265,6 +265,30 @@
 				"type": "uint256"
 			}
 		],
+		"name": "daoIdtoDocuments",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
 		"name": "daoIdtoMembers",
 		"outputs": [
 			{
@@ -304,11 +328,64 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "documentIdtoDocument",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "documentId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "upoladerId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "daoId",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
 				"name": "_proposalId",
 				"type": "uint256"
 			}
 		],
 		"name": "getAllAbstainVotes",
+		"outputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_daoId",
+				"type": "uint256"
+			}
+		],
+		"name": "getAllDaoDocuments",
 		"outputs": [
 			{
 				"internalType": "uint256[]",
@@ -731,6 +808,19 @@
 	},
 	{
 		"inputs": [],
+		"name": "totalDocuments",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "totalProposals",
 		"outputs": [
 			{
@@ -753,6 +843,24 @@
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_daoId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_ipfsHash",
+				"type": "string"
+			}
+		],
+		"name": "uploadDocument",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{

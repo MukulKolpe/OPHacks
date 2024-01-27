@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { FaYoutube, FaGithub } from "react-icons/fa";
 import { ReactNode } from "react";
+import ScrollToTop from "react-scroll-to-top";
 
 const SocialButton = ({ children, label, href }: any) => {
   return (
@@ -66,6 +67,20 @@ export default function Footer() {
           </SocialButton>
         </Stack>
       </Container>
+      <ScrollToTop
+        smooth
+        color="#39445a"
+        style={{
+          backgroundColor: "#fff",
+          width: "40px",
+          height: "40px",
+          margin: "0 auto",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          cursor: "pointer",
+        }}
+      />
     </Box>
   );
 }
