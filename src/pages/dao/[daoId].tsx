@@ -90,6 +90,12 @@ const index = () => {
 
   const toast = useToast();
 
+  const convertString = (dateString: any) => {
+    const date = new Date(dateString);
+    const millisecondsSinceEpoch = date.getTime() / 1000;
+    return millisecondsSinceEpoch;
+  };
+
   const convertToEpoch = (dateString: any) => {
     const epochValue = new Date(dateString + "T00:00:00Z").getTime() / 1000;
     return epochValue;
@@ -398,28 +404,60 @@ const index = () => {
 
   return (
     <div>
-      <div>This is dao number: {Number(daoInfo.daoId)}</div>
-      <div>Dao Name: {daoInfo.daoName}</div>
-      <div> Dao description: {daoInfo.daoDescription} </div>
-      <div> Dao Governance Token: {daoInfo.governanceTokenAddress} </div>
-      <div> Total Members: {totalMembers} </div>
-      <div>
-        {" "}
-        Creator Name and Wallet Address: {adminInfo?.userName} -{" "}
-        {adminInfo?.userWallet}
-      </div>
+      <Box
+        maxW="800px"
+        mx="auto"
+        my={6}
+        p={4}
+        bg="teal"
+        boxShadow="lg"
+        borderRadius="md"
+      >
+        <Heading as="h2" fontSize="xl" fontWeight="bold" mb={4}>
+          DAO Details
+        </Heading>
+        <Text fontSize="md" fontWeight="bold" mb={2}>
+          This is DAO number: {Number(daoInfo.daoId)}
+        </Text>
+        <Text fontSize="md" fontWeight="bold" mb={2}>
+          DAO Name: {daoInfo.daoName}
+        </Text>
+        <Text fontSize="md" fontWeight="bold" mb={2}>
+          DAO Description: {daoInfo.daoDescription}
+        </Text>
+        <Text fontSize="md" fontWeight="bold" mb={2}>
+          DAO Governance Token: {daoInfo.governanceTokenAddress}
+        </Text>
+        <Text fontSize="md" fontWeight="bold" mb={2}>
+          Total Members: {totalMembers}
+        </Text>
+        <Text fontSize="md" fontWeight="bold" mb={2}>
+          Creator Name and Wallet Address: {adminInfo?.userName} -{" "}
+          {adminInfo?.userWallet}
+        </Text>
 
-      {isMember ? (
-        <Button mt="2%" m={2} onClick={() => handleSizeClick1("xl")}>
-          Add Proposal{" "}
-        </Button>
-      ) : null}
+        {isMember && (
+          <Button
+            mt="2%"
+            m={2}
+            onClick={() => handleSizeClick1("xl")}
+            colorScheme="teal"
+          >
+            Add Proposal
+          </Button>
+        )}
 
-      {adminInfo?.userWallet === address ? (
-        <Button mt="2%" m={2} onClick={() => handleSizeClick3("xl")}>
-          Add member
-        </Button>
-      ) : null}
+        {adminInfo?.userWallet === address && (
+          <Button
+            mt="2%"
+            m={2}
+            onClick={() => handleSizeClick3("xl")}
+            colorScheme="teal"
+          >
+            Add Member
+          </Button>
+        )}
+      </Box>
       <Divider mt={12} mb={12} />
       <Grid
         templateColumns={{
@@ -744,10 +782,10 @@ const index = () => {
               <Input
                 placeholder="Select Date "
                 size="md"
-                type="date"
+                type="datetime-local"
                 id="datetime-local"
                 onChange={(e) => {
-                  setStartDate(convertToEpoch(e.target.value) as any);
+                  setStartDate(convertString(e.target.value) as any);
                 }}
               />
             </FormControl>
@@ -763,10 +801,10 @@ const index = () => {
               <Input
                 placeholder="Select Date and Time"
                 size="md"
-                type="date"
+                type="datetime-local"
                 id="datetime-local"
                 onChange={(e) => {
-                  setEndTime(convertToEpoch(e.target.value) as any);
+                  setEndTime(convertString(e.target.value) as any);
                 }}
               />
             </FormControl>
