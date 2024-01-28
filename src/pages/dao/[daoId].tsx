@@ -186,6 +186,43 @@ const index = () => {
         const tempAdminInfo = await userSideInstance.userIdtoUser(tempAdminId);
         console.log(tempAdminInfo);
         setAdminInfo(tempAdminInfo);
+      } else {
+        const particleProvider = new ParticleProvider(particle.auth);
+        const accounts = await particleProvider.request({
+          method: "eth_accounts",
+        });
+        const ethersProvider = new ethers.providers.Web3Provider(
+          particleProvider,
+          "any"
+        );
+        const signer = ethersProvider.getSigner();
+        const userSideInstance = new ethers.Contract(
+          process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+          usersideabi,
+          signer
+        );
+        console.log(userSideInstance);
+        const tempDaoInfo = await userSideInstance.daoIdtoDao(daoId);
+        setDaoInfo(tempDaoInfo);
+        const tempDaoMembers = await userSideInstance.getAllDaoMembers(daoId);
+        console.log(tempDaoMembers);
+        setTotalMembers(tempDaoMembers.length);
+        const tempDaoProposals = await userSideInstance.getAllDaoProposals(
+          daoId
+        );
+        console.log(tempDaoProposals);
+        const membershipSignal = await userSideInstance.checkMembership(
+          daoId,
+          account.address
+        );
+        setIsMember(membershipSignal);
+        console.log("Membership signal: " + membershipSignal);
+        setLoading(false);
+        console.log("Dao Status: " + tempDaoInfo.isPrivate);
+        const tempAdminId = await tempDaoInfo.creator;
+        const tempAdminInfo = await userSideInstance.userIdtoUser(tempAdminId);
+        console.log(tempAdminInfo);
+        setAdminInfo(tempAdminInfo);
       }
     }
   };
@@ -201,6 +238,62 @@ const index = () => {
       );
       console.log(userSideInstance);
       const accounts = await provider.listAccounts();
+      const propInfo = await userSideInstance.proposalIdtoProposal(
+        proposalForVote
+      );
+      const govTokenAdd = propInfo.votingTokenAddress;
+      var minThreshold = propInfo.votingThreshold;
+      const govTokenContract = new ethers.Contract(
+        govTokenAdd,
+        GovernanceTokenAbi,
+        signer
+      );
+      const tokenSymbol = await govTokenContract.symbol();
+      console.log(tokenSymbol);
+      const tx = await govTokenContract.approve(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        minThreshold
+      );
+      await tx.wait();
+      toast({
+        title: "Congrats! Transaction Complete",
+        description: `Your vote will be counted soon.`,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
+      const tx2 = await userSideInstance.voteForProposal(
+        proposalForVote,
+        userResponse,
+        account.address
+      );
+      await tx2.wait();
+      toast({
+        title: "Congrats.",
+        description: `Your vote has been counted.`,
+        status: "success",
+        duration: 10000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } else {
+      const particleProvider = new ParticleProvider(particle.auth);
+      const accounts = await particleProvider.request({
+        method: "eth_accounts",
+      });
+      const ethersProvider = new ethers.providers.Web3Provider(
+        particleProvider,
+        "any"
+      );
+      const signer = ethersProvider.getSigner();
+      const userSideInstance = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        usersideabi,
+        signer
+      );
+      console.log(userSideInstance);
+
       const propInfo = await userSideInstance.proposalIdtoProposal(
         proposalForVote
       );
@@ -321,52 +414,159 @@ const index = () => {
       //   ]);
       // }
       setPropSignal(true);
+    } else {
+      const particleProvider = new ParticleProvider(particle.auth);
+      const accounts = await particleProvider.request({
+        method: "eth_accounts",
+      });
+      const ethersProvider = new ethers.providers.Web3Provider(
+        particleProvider,
+        "any"
+      );
+      const signer = ethersProvider.getSigner();
+      const userSideContract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        UserSideAbi,
+        signer
+      );
+
+      const totalProposals = Number(
+        await userSideContract.getAllDaoProposals(BigInt(daoInfo.daoId))
+      );
+      let tempProposalId,
+        tempProposalInfo,
+        governanceTokenContract,
+        tokenSymbol,
+        tokenName;
+      let tempProposalArray = await userSideContract.getAllDaoProposals(
+        daoInfo.daoId
+      );
+
+      console.log(tempProposalArray);
+      for (let i = 0; i < tempProposalArray.length; i++) {
+        tempProposalInfo = await userSideContract.proposalIdtoProposal(
+          tempProposalArray[i]
+        );
+        console.log(tempProposalInfo);
+
+        governanceTokenContract = new ethers.Contract(
+          tempProposalInfo.votingTokenAddress,
+          GovernanceTokenAbi,
+          signer
+        );
+        tokenSymbol = await governanceTokenContract.symbol();
+        tokenName = await governanceTokenContract.name();
+        console.log(tokenSymbol);
+        console.log(tokenName);
+        console.log(tempProposalInfo);
+        setProposalArray((prevState) => [
+          ...prevState,
+          {
+            proposalInfo: tempProposalInfo,
+            tokenName: tokenName,
+            tokenSymbol: tokenSymbol,
+          },
+        ]);
+      }
+      setPropSignal(true);
     }
   };
 
   const addProposal = async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const userSideContract = new ethers.Contract(
-      process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
-      UserSideAbi,
-      signer
-    );
+    if (window.ethereum._state.accounts.length !== 0) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const userSideContract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        UserSideAbi,
+        signer
+      );
 
-    console.log(title);
-    console.log(description);
-    console.log(votingthreshold);
-    console.log(daoInfo.daoId.toString());
-    console.log(tokenAddress);
-    console.log(address);
-    console.log(startDate);
-    console.log(endTime);
-    console.log(passingThreshold);
-    console.log(voteOnce);
-    console.log(daoInfo);
+      console.log(title);
+      console.log(description);
+      console.log(votingthreshold);
+      console.log(daoInfo.daoId.toString());
+      console.log(tokenAddress);
+      console.log(address);
+      console.log(startDate);
+      console.log(endTime);
+      console.log(passingThreshold);
+      console.log(voteOnce);
+      console.log(daoInfo);
 
-    const tx = await userSideContract.createProposal(
-      proposalType,
-      title + "|" + description,
-      votingthreshold,
-      daoInfo.daoId,
-      tokenAddress,
-      address,
-      startDate,
-      endTime,
-      passingThreshold,
-      voteOnce
-    );
+      const tx = await userSideContract.createProposal(
+        proposalType,
+        title + "|" + description,
+        votingthreshold,
+        daoInfo.daoId,
+        tokenAddress,
+        address,
+        startDate,
+        endTime,
+        passingThreshold,
+        voteOnce
+      );
 
-    await tx.wait();
+      await tx.wait();
 
-    toast({
-      title: "Proposal Created",
-      description: "Your proposal has been created",
-      status: "success",
-      duration: 5000,
-      isClosable: true,
-    });
+      toast({
+        title: "Proposal Created",
+        description: "Your proposal has been created",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } else {
+      const particleProvider = new ParticleProvider(particle.auth);
+      const accounts = await particleProvider.request({
+        method: "eth_accounts",
+      });
+      const ethersProvider = new ethers.providers.Web3Provider(
+        particleProvider,
+        "any"
+      );
+      const signer = ethersProvider.getSigner();
+      const userSideContract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        UserSideAbi,
+        signer
+      );
+
+      console.log(title);
+      console.log(description);
+      console.log(votingthreshold);
+      console.log(daoInfo.daoId.toString());
+      console.log(tokenAddress);
+      console.log(address);
+      console.log(startDate);
+      console.log(endTime);
+      console.log(passingThreshold);
+      console.log(voteOnce);
+      console.log(daoInfo);
+
+      const tx = await userSideContract.createProposal(
+        proposalType,
+        title + "|" + description,
+        votingthreshold,
+        daoInfo.daoId,
+        tokenAddress,
+        address,
+        startDate,
+        endTime,
+        passingThreshold,
+        voteOnce
+      );
+
+      await tx.wait();
+
+      toast({
+        title: "Proposal Created",
+        description: "Your proposal has been created",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   const convertTimeToEpoch = async () => {
@@ -400,6 +600,45 @@ const index = () => {
     if (window?.ethereum?._state?.accounts?.length !== 0) {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
+      const userSideInstance = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
+        UserSideAbi,
+        signer
+      );
+      //const accounts = await provider.listAccounts();
+      const yesArray = await userSideInstance.getAllYesVotes(_proposalId);
+      const noArray = await userSideInstance.getAllNoVotes(_proposalId);
+      const abstainArray = await userSideInstance.getAllAbstainVotes(
+        _proposalId
+      );
+      const totalArray = await userSideInstance.getAllVoters(_proposalId);
+      const yesPercentage =
+        (yesArray.length /
+          (yesArray.length + noArray.length + abstainArray.length)) *
+        100;
+      console.log(yesPercentage);
+      setYesVotes(yesArray);
+      setNoVotes(noArray);
+      setAbstainVotes(abstainArray);
+      const propInfo = await userSideInstance.proposalIdtoProposal(
+        proposalForVote
+      );
+      const winnningThresold = Number(propInfo.passingThreshold);
+      if (yesPercentage >= winnningThresold) {
+        setFinalVerdict("Proposal has Passed!");
+      } else {
+        setFinalVerdict("Proposal has been reverted");
+      }
+    } else {
+      const particleProvider = new ParticleProvider(particle.auth);
+      const accounts = await particleProvider.request({
+        method: "eth_accounts",
+      });
+      const ethersProvider = new ethers.providers.Web3Provider(
+        particleProvider,
+        "any"
+      );
+      const signer = ethersProvider.getSigner();
       const userSideInstance = new ethers.Contract(
         process.env.NEXT_PUBLIC_USERSIDE_ADDRESS,
         UserSideAbi,
