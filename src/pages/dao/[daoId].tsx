@@ -1049,7 +1049,12 @@ const index = () => {
                   </Modal>
                 </Box>
                 <Box>
-                  <Button mt={10}>View all files</Button>
+                  <Button
+                    onClick={() => router.push(`/dao/files/${daoInfo.daoId}`)}
+                    mt={10}
+                  >
+                    View all files
+                  </Button>
                 </Box>
               </Flex>
             </>
