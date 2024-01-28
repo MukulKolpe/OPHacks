@@ -24,6 +24,7 @@ import {
   WarningTwoIcon,
 } from "@chakra-ui/icons";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import Image from "next/image";
 // import { ethers } from "ethers";
 import { Link } from "@chakra-ui/next-js";
 
@@ -54,7 +55,14 @@ export default function Navbar() {
             ml="2"
             color="brand.00"
           >
-            <Link href="/">OPHacks</Link>
+            <Link href="/" mt={1}>
+              <Image
+                src="/assets/logo.png"
+                alt="Logo"
+                width={94}
+                height={150}
+              />
+            </Link>
           </HStack>
           <Flex alignItems={"center"}>
             <div style={{ display: "flex" }}>
