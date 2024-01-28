@@ -341,6 +341,16 @@
 			},
 			{
 				"internalType": "string",
+				"name": "documentTitle",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "documentDescription",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
 				"name": "ipfsHash",
 				"type": "string"
 			},
@@ -847,6 +857,16 @@
 	},
 	{
 		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_documentTitle",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_documentDesc",
+				"type": "string"
+			},
 			{
 				"internalType": "uint256",
 				"name": "_daoId",

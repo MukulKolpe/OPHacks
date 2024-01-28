@@ -29,6 +29,7 @@ import { RiAdminLine } from "react-icons/ri";
 import usersideabi from "../../utils/usersideabi.json";
 import { ParticleProvider } from "@particle-network/provider";
 import { ethers } from "ethers";
+import { useRouter } from "next/router";
 
 interface IBlogTags {
   tags: Array<string>;
@@ -89,6 +90,7 @@ const DaosCard = ({
   daoId,
 }) => {
   const toast = useToast();
+  const router = useRouter();
 
   const joinDao = async () => {
     if (window.ethereum._state.accounts.length !== 0) {
@@ -316,19 +318,17 @@ const DaosCard = ({
               </Text>
             </Flex>
           </Flex>
-
-          <Button margin={6} mb={2}>
-            View More <ExternalLinkIcon mx="2px" />
+          <Button margin={6} mb={2} onClick={joinDao}>
+            <AddIcon mx="2px" /> Join DAO
           </Button>
-
           <Button
             marginRight={6}
             marginLeft={6}
             marginBottom={2}
             mt={2}
-            onClick={joinDao}
+            onClick={() => router.push(`/dao/${daoId}`)}
           >
-            <AddIcon mx="2px" /> Join DAO
+            View More <ExternalLinkIcon mx="2px" />
           </Button>
         </Box>
       </Box>
