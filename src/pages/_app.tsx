@@ -31,6 +31,8 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
+        <title>DAOConnect</title>
+        <meta name="description" content="Unlocking DAO Potential" />
         {/* <!-- Google tag (gtag.js) --> */}
         <script
           async
