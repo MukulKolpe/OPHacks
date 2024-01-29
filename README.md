@@ -27,7 +27,7 @@ Our project aims to transform the landscape of decentralized autonomous organiza
 ```
 https://github.com/MukulKolpe/OPHacks
 ```
-3. 
+3. Open in VS code or your preferred code editor.
 ```
 code OPHacks
 ```
