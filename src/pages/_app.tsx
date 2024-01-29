@@ -29,20 +29,38 @@ const theme = extendTheme({ colors, config });
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <WagmiProvider>
-      <ChakraProvider theme={theme}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            minHeight: "100vh",
+    <>
+      <Head>
+        {/* <!-- Google tag (gtag.js) --> */}
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
+        ></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+          window.dataLayer = window.dataLayer || []; function gtag()
+          {dataLayer.push(arguments)}
+          gtag('js', new Date()); gtag('config', "${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}");
+          `,
           }}
-        >
-          <Navbar />
-          <Component {...pageProps} />
-          <Footer />
-        </div>
-      </ChakraProvider>
-    </WagmiProvider>
+        ></script>
+      </Head>
+      <WagmiProvider>
+        <ChakraProvider theme={theme}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              minHeight: "100vh",
+            }}
+          >
+            <Navbar />
+            <Component {...pageProps} />
+            <Footer />
+          </div>
+        </ChakraProvider>
+      </WagmiProvider>
+    </>
   );
 }
