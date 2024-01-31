@@ -119,7 +119,12 @@ export default function Navbar() {
               </>
 
               <HStack>
-                <ConnectButton />
+                <ConnectButton
+                  accountStatus={{
+                    smallScreen: "avatar",
+                    largeScreen: "full",
+                  }}
+                />
               </HStack>
             </div>
           </Flex>
