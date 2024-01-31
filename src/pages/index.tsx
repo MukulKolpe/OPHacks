@@ -23,12 +23,12 @@ export default function Home() {
     <>
       <Stack minH={"100vh"} direction={{ base: "column", md: "row" }}>
         <Flex
-          flexDir={"row"}
+          flexDir={{ base: "column", md: "row" }}
           alignItems={"center"}
           justifyContent={"center"}
           flex={1}
-          px={28}
-          ml={100}
+          px={{ base: 4, md: 20, lg: 28 }}
+          ml={{ base: 0, md: 0, lg: 20 }}
         >
           <Flex p={8} flex={1} align={"center"} justify={"center"}>
             <Stack spacing={6} w={"full"} maxW={"lg"}>
@@ -88,8 +88,8 @@ export default function Home() {
               alt={"Login Image"}
               objectFit={"cover"}
               srcSet="/assets/DAOLanding.svg"
-              width={450}
-              height={450}
+              width={{ base: 300, md: 450, lg: 550 }}
+              // height={450}
             />
           </Flex>
         </Flex>
