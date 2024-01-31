@@ -1028,22 +1028,21 @@ const index = () => {
                                 Upload to IPFS
                               </Button>
                             </SimpleGrid>
-                            <Button
-                              display="block"
-                              mx="auto"
-                              mt={6}
-                              w="10rem"
-                              colorScheme="purple"
-                              variant="solid"
-                              onClick={handleSubmit}
-                            >
-                              Upload
-                            </Button>
                           </Box>
                         </div>
                       </ModalBody>
                       <ModalFooter>
-                        <Button>Submit</Button>
+                        <Button
+                          display="block"
+                          mx="auto"
+                          mt={6}
+                          w="10rem"
+                          colorScheme="purple"
+                          variant="solid"
+                          onClick={handleSubmit}
+                        >
+                          Upload
+                        </Button>
                       </ModalFooter>
                     </ModalContent>
                   </Modal>
