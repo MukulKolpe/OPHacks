@@ -31,7 +31,7 @@ https://github.com/MukulKolpe/OPHacks
 ```
 code OPHacks
 ```
-4.
+4. Create `.env` file in the root directory of the project.
 ```
 touch .env
 ```
