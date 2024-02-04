@@ -28,9 +28,10 @@ const CreateDao = () => {
       {showBtn ? (
         <Box
           display="flex"
-          justifyContent="space-around"
+          justifyContent="space-evenly"
           alignItems="center"
           height="80vh"
+          flexDir={{ base: "column", md: "row" }}
         >
           <Box textDecoration="none" _hover={{ textDecoration: "none" }}>
             <Image
@@ -38,12 +39,20 @@ const CreateDao = () => {
               src="/assets/tokens.webp"
               alt="Tokens Image"
               objectFit="contain"
-              width={275}
+              width={{ base: 200, md: 275 }}
+              // width={275}
             />
           </Box>
-          <Box width="50%">
+          <Box
+            width={{ base: "100%", md: "50%" }}
+            display={"flex"}
+            justifyContent={"center"}
+            alignItems={"center"}
+            flexDir={{ base: "column", md: "row" }}
+            gap={4}
+          >
             <Button
-              width="45%"
+              width={{ base: "70%", md: "45%" }}
               height="6.25rem"
               padding="4"
               colorScheme="teal"
@@ -66,14 +75,14 @@ const CreateDao = () => {
                 backgroundSize: "100%",
                 transition: "background 0s",
               }}
-              marginRight="2%"
+              // marginRight="2%"
             >
               <Text fontSize="xl" fontWeight="bold">
                 Import Existing Token
               </Text>
             </Button>
             <Button
-              width="45%"
+              width={{ base: "70%", md: "45%" }}
               height="6.25rem"
               padding="4"
               colorScheme="orange"
