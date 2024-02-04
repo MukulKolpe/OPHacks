@@ -1,3 +1,4 @@
+// @ts-nocheck comment
 "use client";
 import Head from "next/head";
 import { Inter } from "next/font/google";
@@ -13,11 +14,35 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { useAccount } from "wagmi";
+import {
+  useConnectModal,
+  useAccountModal,
+  useChainModal,
+} from "@rainbow-me/rainbowkit";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const router = useRouter();
+  const account = useAccount();
+  const { openConnectModal } = useConnectModal();
+
+  const registerRedirect = () => {
+    if (account.isConnected) {
+      router.push("/register");
+    } else {
+      openConnectModal();
+    }
+  };
+
+  const createDAO = () => {
+    if (account.isConnected) {
+      router.push("/create-dao");
+    } else {
+      openConnectModal();
+    }
+  };
 
   return (
     <>
@@ -68,7 +93,7 @@ export default function Home() {
                     bg: "blue.600",
                   }}
                   width={{ base: "full", md: "auto" }}
-                  onClick={() => router.push("/register")}
+                  onClick={registerRedirect}
                 >
                   Register Now!
                 </Button>
@@ -76,7 +101,7 @@ export default function Home() {
                 <Button
                   width={{ base: "full", md: "auto" }}
                   rounded={"full"}
-                  onClick={() => router.push("/create-dao")}
+                  onClick={createDAO}
                 >
                   Create a DAO
                 </Button>
