@@ -874,7 +874,7 @@ const index = () => {
                     Share Files with the DAO members
                   </Button>
                   <Modal isOpen={isUploadOpen} onClose={onUploadClose}>
-                    <ModalOverlay />
+                    <ModalOverlay backdropFilter="blur(4px)" />
                     <ModalContent>
                       <ModalHeader>Upload File</ModalHeader>
                       <ModalCloseButton />
@@ -1308,7 +1308,7 @@ const index = () => {
       </Grid>
 
       <Modal isOpen={isAddOpen} onClose={onAddClose}>
-        <ModalOverlay />
+        <ModalOverlay backdropFilter="blur(4px)" />
         <ModalContent>
           <ModalHeader>Create Proposal</ModalHeader>
           <ModalCloseButton />
@@ -1477,7 +1477,7 @@ const index = () => {
         </ModalContent>
       </Modal>
       <Modal isOpen={isVoteOpen} onClose={onVoteClose}>
-        <ModalOverlay />
+        <ModalOverlay backdropFilter="blur(4px)" />
         <ModalContent>
           <ModalHeader>Cast Your Vote</ModalHeader>
           <ModalCloseButton />
@@ -1513,7 +1513,7 @@ const index = () => {
         </ModalContent>
       </Modal>
       <Modal isOpen={isStartOpen} onClose={onStartClose}>
-        <ModalOverlay />
+        <ModalOverlay backdropFilter="blur(4px)" />
         <ModalContent>
           <ModalHeader>Invite member to dao:</ModalHeader>
           <ModalCloseButton />
@@ -1532,7 +1532,7 @@ const index = () => {
         </ModalContent>
       </Modal>
       <Modal isOpen={isEndOpen} onClose={onEndClose}>
-        <ModalOverlay />
+        <ModalOverlay backdropFilter="blur(4px)" />
         <ModalContent>
           <ModalHeader>Voting Results: </ModalHeader>
           <ModalBody>
