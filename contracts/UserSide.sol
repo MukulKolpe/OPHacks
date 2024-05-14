@@ -81,7 +81,7 @@ contract UserSide{
     mapping(uint256 => Document) public documentIdtoDocument;
     mapping(uint256 => uint256[]) public daoIdtoDocuments;
     
-
+    // function to create User 
     function createUser(
         string memory _userName,
         string memory _userEmail,
@@ -102,6 +102,7 @@ contract UserSide{
         userWallettoUserId[_userWalletAddress] = totalUsers;
     }
 
+    // create DAO
     function createDao(
         string memory _daoName,
         string memory _daoDescription,
@@ -129,6 +130,7 @@ contract UserSide{
         userIdtoDaos[creatorId].push(totalDaos);
     }
 
+    // function to create proposals
     function createProposal(
         uint256 _proposalType,
         string memory _proposalTitleAndDesc,
@@ -164,6 +166,7 @@ contract UserSide{
     }
 
 
+    // function to add member to DAO
     function addMembertoDao(
         uint256 _daoId,
         address _userWalletAddress,
@@ -177,6 +180,7 @@ contract UserSide{
         userIdtoDaos[newUserId].push(_daoId);
     }
 
+    // function to join DAO
     function joinDao(uint256 _daoId, address _callerWalletAddress) public {
         require(daoIdtoDao[_daoId].isPrivate == false, "Dao is Private");
         //require(balanceOf(msg.sender) >= daoIdtoDao[_daoId].joiningThreshold,"Not enough tokens");
@@ -193,6 +197,7 @@ contract UserSide{
         userIdtoDaos[newUserId].push(_daoId);
     }
 
+    // function to check Membership
     function checkMembership(
         uint256 _daoId,
         address _callerWalletAddress
@@ -207,6 +212,7 @@ contract UserSide{
         return false;
     }
 
+    // function to uplaod Documents
     function uploadDocument(string memory _documentTitle,string memory _documentDesc,uint256 _daoId,string memory _ipfsHash) public {
         checkMembership(_daoId,msg.sender);
         totalDocuments++;
@@ -225,6 +231,8 @@ contract UserSide{
         return false;
     }
 
+
+    // function to vote for proposal
     function voteForProposal(
         uint256 _proposalId,
         uint256 _voteFor,
@@ -276,6 +284,7 @@ contract UserSide{
         }
     }
 
+    // function to find square root
     function sqrt(uint x) internal pure returns (uint y) {
         uint z = (x + 1) / 2;
         y = x;
@@ -285,6 +294,7 @@ contract UserSide{
         }
     }
 
+    // function for quadratic voting
     function qvVoting(uint256 _proposalId,uint256 _numTokens,address _callerWalletAddress,uint256 _voteFor) public {
         address funcCaller = _callerWalletAddress;
         uint256 tempDaoId = proposalIdtoProposal[_proposalId].daoId;
@@ -319,6 +329,8 @@ contract UserSide{
             quadraticNoMappings[_proposalId][tempUserId] += weight;
         }
     }
+
+    // getter functions
 
     function getAllDaoMembers(uint256 _daoId) public view returns (uint256[] memory) {
         return daoIdtoMembers[_daoId];
