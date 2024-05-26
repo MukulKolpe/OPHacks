@@ -1,7 +1,7 @@
 ## OPHacks - DAOConnect 🚀
 
 ## Introduction :fire:
-OPHacks - DAOConnect aims to transform the landscape of decentralized autonomous organizations (DAOs) by offering a user-friendly infrastructure. We streamline the creation, management, and governance of DAOs, reducing technical barriers. With transparent tokenomics, efficient governance tools, and seamless integration with the current infrastructure, we empower communities to participate effortlessly in decentralized decision-making processes.
+DAOConnect aims to transform the landscape of decentralized autonomous organizations (DAOs) by offering a user-friendly infrastructure. We streamline the creation, management, and governance of DAOs, reducing technical barriers. With transparent tokenomics, efficient governance tools, and seamless integration with the current infrastructure, we empower communities to participate effortlessly in decentralized decision-making processes.
 
 ## TechStack Used 🎯
 <li>Solidity</li>
