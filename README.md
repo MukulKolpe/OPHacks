@@ -1,19 +1,22 @@
 ## OPHacks - DAOConnect 🚀
+![GitHub deployments](https://img.shields.io/github/deployments/MukulKolpe/OPHacks/production) <a href="https://github.com/MukulKolpe/OPHacks"><img src="https://img.shields.io/github/license/MukulKolpe/OPHacks"></img></a>
+
+
 
 ## Introduction :fire:
-Our project aims to transform the landscape of decentralized autonomous organizations (DAOs) by offering a user-friendly infrastructure. We streamline the creation, management, and governance of DAOs, reducing technical barriers. With transparent tokenomics, efficient governance tools, and seamless integration with the current infrastructure, we empower communities to participate effortlessly in decentralized decision-making processes.
+DAOConnect aims to transform the landscape of decentralized autonomous organizations (DAOs) by offering a user-friendly infrastructure. We streamline the creation, management, and governance of DAOs, reducing technical barriers. With transparent tokenomics, efficient governance tools, and seamless integration with the current infrastructure, we empower communities to participate effortlessly in decentralized decision-making processes.
 
 ## TechStack Used 🎯
 <li>Solidity</li>
-<li>ethers.js</li>
+<li>Ethers.js</li>
 <li>Next.js</li>
 <li>RainbowKit</li>
-<li>Metamask</li>
-<li>openzeppelin</li>
+<li>MetaMask</li>
+<li>OpenZeppelin</li>
 <li>ParticleAuth</li>
 <li>WalletConnect</li>
-<li>Typescript</li>
-<li>Javascript</li>
+<li>TypeScript</li>
+<li>JavaScript</li>
 <li>Chakra UI</li>
 <li>Optimism Sepolia Testnet</li>
 <li>Alchemy</li>
@@ -25,7 +28,7 @@ Our project aims to transform the landscape of decentralized autonomous organiza
 2. Clone the repo.
    
 ```
-https://github.com/MukulKolpe/OPHacks
+git clone https://github.com/MukulKolpe/OPHacks
 ```
 3. Open in VS code or your preferred code editor.
 ```
